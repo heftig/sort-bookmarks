@@ -1,0 +1,27 @@
+{
+  "manifest_version": 2,
+  "name": "Sort Bookmarks",
+  "version": "0.1",
+
+  "description": "Sorts bookmarks.",
+  "icons": {
+    "48": "icons/sort-bookmarks.svg",
+    "96": "icons/sort-bookmarks.svg"
+  },
+
+  "permissions": [
+    "bookmarks"
+  ],
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+
+  "browser_action": {
+    "default_icon": "icons/sort-bookmarks.svg",
+    "default_title": "Sort bookmarks...",
+    "default_popup": "popup/sort-panel.html"
+  }
+}
