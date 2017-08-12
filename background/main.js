@@ -1,3 +1,5 @@
+"use strict";
+
 async function sortNode(node) {
   if (node.unmodifiable) {
     console.log("Unmodifiable node: %o", node);
