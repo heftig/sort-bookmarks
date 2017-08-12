@@ -27,12 +27,7 @@ async function sortNode(node, compareFunction) {
 
 async function sortRoot() {
   let root = (await browser.bookmarks.getTree())[0];
-  let func = (a, b) => {
-    if (!a.url && !b.url) return 0;
-    if (!a.url) return -1;
-    if (!b.url) return 1;
-    return a.url.localeCompare(b.url, undefined, { "numeric": true });
-  });
+  let func = makeCompareFunction();
   await sortNode(root, func);
   console.log("Success!");
 }
