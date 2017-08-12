@@ -1,18 +1,12 @@
 "use strict";
 
-async function sortNode(node) {
+async function sortNode(node, compareFunction) {
   if (node.unmodifiable) {
     console.log("Unmodifiable node: %o", node);
     return;
   }
 
-  let sorted = node.children.slice().sort((a, b) => {
-    if (!a.url && !b.url) return 0;
-    if (!a.url) return -1;
-    if (!b.url) return 1;
-    return a.url.localeCompare(b.url, undefined, { "numeric": true });
-  });
-
+  let sorted = node.children.slice().sort(compareFunction);
   let moved = 0, len = sorted.length, subtrees = [];
 
   for (let i = 0; i < len; i++) {
@@ -28,12 +22,18 @@ async function sortNode(node) {
 
   console.log("Sorted \"%s\", %d items moved", node.title || node.id, moved);
 
-  await Promise.all(subtrees.map((n) => sortNode(n)));
+  await Promise.all(subtrees.map((n) => sortNode(n, compareFunction)));
 }
 
 async function sortRoot() {
   let root = (await browser.bookmarks.getTree())[0];
-  await sortNode(root);
+  let func = (a, b) => {
+    if (!a.url && !b.url) return 0;
+    if (!a.url) return -1;
+    if (!b.url) return 1;
+    return a.url.localeCompare(b.url, undefined, { "numeric": true });
+  });
+  await sortNode(root, func);
   console.log("Success!");
 }
 
