@@ -13,7 +13,7 @@ async function sortNode(node, compareFunction) {
     let n = sorted[i];
 
     if (i !== n.index) {
-      sorted[i] = await browser.bookmarks.move(n.id, { "index": i });
+      n = sorted[i] = await browser.bookmarks.move(n.id, { "index": i });
       moved++;
     }
 
