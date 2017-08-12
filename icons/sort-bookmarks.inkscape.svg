@@ -158,9 +158,9 @@
      showgrid="true"
      inkscape:current-layer="svg8"
      inkscape:document-units="px"
-     inkscape:cy="-2.1504975"
-     inkscape:cx="-152.55151"
-     inkscape:zoom="2.56"
+     inkscape:cy="6.6130842"
+     inkscape:cx="0.53458432"
+     inkscape:zoom="32"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
      borderopacity="1.0"
@@ -185,12 +185,12 @@
   </metadata>
   <path
      d="m 13.337728,8.48457 h 2.657525 L 13.532776,0 H 10.533917 L 8.0592496,8.48457 h 2.6209534 l 0.316953,-1.6457 h 2.011429 z m -1.987049,-3.40113 0.646096,-3.328 0.658286,3.328 z"
-     style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.66666698px;line-height:0px;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Heavy';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.14285755"
+     style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.66666698px;line-height:0px;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Heavy';letter-spacing:0px;word-spacing:0px;fill:#005dff;fill-opacity:1;stroke:none;stroke-width:1.14285755"
      id="path969"
      inkscape:connector-curvature="0" />
   <path
      d="M 14.727442,9.49028 H 9.4855355 v 1.75543 h 2.4624775 l -2.706287,3.072 V 16 h 5.363812 l 0.207239,-1.77982 h -2.75505 l 2.669715,-3.05981 z"
-     style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.66666698px;line-height:0px;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Heavy';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.14285755"
+     style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:10.66666698px;line-height:0px;font-family:'Fira Sans';-inkscape-font-specification:'Fira Sans Heavy';letter-spacing:0px;word-spacing:0px;fill:#005dff;fill-opacity:1;stroke:none;stroke-width:1.14285755"
      id="path972"
      inkscape:connector-curvature="0" />
   <use
@@ -217,6 +217,6 @@
      sodipodi:cx="4"
      sodipodi:sides="5"
      id="path881"
-     style="opacity:1;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2"
+     style="opacity:1;fill:#ffc500;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2"
      sodipodi:type="star" />
 </svg>
