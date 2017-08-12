@@ -30,13 +30,9 @@ async function sortNode(node) {
 }
 
 async function sortRoot() {
-  try {
-    let root = (await browser.bookmarks.getTree())[0];
-    await sortNode(root);
-    console.log("Success!");
-  } catch (e) {
-    console.error("Error: %o", e);
-  }
+  let root = (await browser.bookmarks.getTree())[0];
+  await sortNode(root);
+  console.log("Success!");
 }
 
 browser.runtime.onMessage.addListener((e) => {
