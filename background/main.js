@@ -1,5 +1,8 @@
 async function sortNode(node) {
-  if (node.unmodifiable) return;
+  if (node.unmodifiable) {
+    console.log("Unmodifiable node: %o", node);
+    return;
+  }
 
   let sorted = node.children.slice().sort((a, b) => {
     if (!a.url && !b.url) return 0;
