@@ -25,9 +25,9 @@ async function sortNode(node, compareFunction) {
   await Promise.all(subtrees.map((n) => sortNode(n, compareFunction)));
 }
 
-async function sortRoot() {
+async function sortRoot(spec) {
   let root = (await browser.bookmarks.getTree())[0];
-  let func = makeCompareFunction();
+  let func = makeCompareFunction(spec);
   await sortNode(root, func);
   console.log("Success!");
 }
@@ -37,7 +37,7 @@ browser.runtime.onMessage.addListener((e) => {
 
   switch (e.type) {
     case "sortRoot":
-      sortRoot();
+      sortRoot(e.spec);
       break;
   }
 });

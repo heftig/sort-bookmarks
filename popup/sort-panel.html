@@ -7,7 +7,37 @@
 </head>
 <body>
   <form>
-    <button type="submit">Sort</button>
+    <p>
+      <label for="folders">Folders</label>
+      <select class="persisted" id="folders" name="folders">
+        <option value="first" selected>first</option>
+        <option value="inline">inline</option>
+        <option value="last">last</option>
+      </select>
+    </p>
+    <p>
+      <div>
+        <input class="persisted" type="radio" id="by-title" name="by" value="title" checked>
+        <label for="by-title">Sort by title</label>
+      </div>
+      <div>
+        <input class="persisted" type="radio" id="by-url" name="by" value="url">
+        <label for="by-url">Sort by URL</label>
+      </div>
+      <div>
+        <input class="persisted" type="radio" id="by-date-added" name="by" value="date-added">
+        <label for="by-date-added">Sort by date added</label>
+      </div>
+    </p>
+    <p>
+      <div>
+        <input class="persisted" type="checkbox" id="reversed" name="reversed" value="reversed">
+        <label for="reversed">Reversed</label>
+      </div>
+    </p>
+    <p>
+      <button type="submit">Sort</button>
+    </p>
   </form>
 </body>
 </html>
