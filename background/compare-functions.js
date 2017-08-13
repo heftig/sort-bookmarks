@@ -46,3 +46,5 @@ var makeCompareFunction;
     return compose(foldersFirst, compose(byURL, compose(byTitle, byIndex)));
   }
 })();
+
+console.log("Loaded compare-functions.js");

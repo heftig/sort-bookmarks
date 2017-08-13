@@ -41,3 +41,5 @@ browser.runtime.onMessage.addListener((e) => {
     console.warn("Unknown message: %o", e);
   }
 });
+
+console.log("Loaded main.js");
