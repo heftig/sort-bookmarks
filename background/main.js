@@ -25,10 +25,25 @@ async function sortNode(node, compareFunction) {
   await Promise.all(subtrees.map((n) => sortNode(n, compareFunction)));
 }
 
+var sortInProgress = false;
+
+function setSortInProgress(value=sortInProgress) {
+  console.log("Sort in progress: %o", value);
+  sortInProgress = value;
+  browser.runtime.sendMessage({ type: "sortInProgress", value: value });
+}
+
 async function sortRoot(spec) {
   let root = (await browser.bookmarks.getTree())[0];
   let func = makeCompareFunction(spec);
-  await sortNode(root, func);
+
+  try {
+    setSortInProgress(true);
+    await sortNode(root, func);
+  } finally {
+    setSortInProgress(false);
+  }
+
   console.log("Success!");
 }
 
@@ -37,7 +52,11 @@ browser.runtime.onMessage.addListener((e) => {
 
   switch (e.type) {
     case "sortRoot":
+      if (sortInProgress) throw "Sort already in progress!";
       sortRoot(e.spec);
+      break;
+    case "querySortInProgress":
+      setSortInProgress();
       break;
   }
 });
