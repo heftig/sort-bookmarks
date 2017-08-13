@@ -20,7 +20,7 @@ async function sortNode(node, compareFunction) {
     if (n.children) subtrees.push(n);
   }
 
-  console.log("Sorted \"%s\", %d items moved", node.title || node.id, moved);
+  if (moved) console.log("Sorted \"%s\", %d items moved", node.title || node.id, moved);
 
   await Promise.all(subtrees.map((n) => sortNode(n, compareFunction)));
 }
