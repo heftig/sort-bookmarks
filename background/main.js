@@ -33,12 +33,12 @@ async function sortRoot() {
 }
 
 browser.runtime.onMessage.addListener((e) => {
+  console.log("Received message: %o", e);
+
   switch (e.type) {
-  case "sortRoot":
-    sortRoot();
-    break;
-  default:
-    console.warn("Unknown message: %o", e);
+    case "sortRoot":
+      sortRoot();
+      break;
   }
 });
 
