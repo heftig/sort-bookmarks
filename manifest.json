@@ -9,6 +9,13 @@
     "96": "icons/sort-bookmarks.svg"
   },
 
+  "applications": {
+    "gecko": {
+      "id": "sort-bookmarks@heftig",
+      "strict_min_version": "54.0"
+    }
+  },
+
   "permissions": [
     "bookmarks"
   ],
