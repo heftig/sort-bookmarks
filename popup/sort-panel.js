@@ -58,4 +58,4 @@ browser.runtime.onMessage.addListener((e) => {
   }
 });
 
-browser.runtime.sendMessage({ "type": "querySortInProgress" });
+browser.runtime.sendMessage({ "type": "popupOpened" });

@@ -86,7 +86,7 @@ browser.runtime.onMessage.addListener((e) => {
       if (sortInProgress) throw "Sort already in progress!";
       sortRoot(e.spec);
       break;
-    case "querySortInProgress":
+    case "popupOpened":
       setSortInProgress();
       break;
   }
