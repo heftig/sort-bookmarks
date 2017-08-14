@@ -70,17 +70,17 @@ function setSortInProgress(value=sortInProgress) {
   browser.runtime.sendMessage({ type: "sortInProgress", value: value });
 }
 
-async function sortRoot() {
-  let root = (await browser.bookmarks.getTree())[0];
+async function getRoot() {
+  return (await browser.bookmarks.getTree())[0];
+}
 
+async function sortRoot() {
   try {
     setSortInProgress(true);
-    await sortNode(root);
+    await sortNode(await getRoot());
   } finally {
     setSortInProgress(false);
   }
-
-  con.log("Success!");
 }
 
 browser.runtime.onMessage.addListener(async (e) => {
@@ -91,6 +91,7 @@ browser.runtime.onMessage.addListener(async (e) => {
       if (sortInProgress) throw "Sort already in progress!";
       sortConf.set(e.conf);
       await sortRoot();
+      con.log("Success!");
       return;
 
     case "popupOpened":
