@@ -5,11 +5,11 @@ async function persistElements(elements) {
   let keys = elements.map((e) => `popupForm-${e.name}`);
   let len = elements.length;
 
-  console.log("Elements to persist: %o\nKeys: %o", elements, keys);
+  con.log("Elements to persist: %o\nKeys: %o", elements, keys);
 
   let values = await stor.get(keys);
 
-  console.log("Loaded values: %o", values);
+  con.log("Loaded values: %o", values);
 
   for (let i = 0; i < len; i++) {
     let elem = elements[i], key = keys[i];
@@ -25,7 +25,7 @@ async function persistElements(elements) {
     elem.addEventListener("change", async (e) => {
       let value = e.target.value;
       if ("checked" in e.target && !e.target.checked) value = null;
-      console.log("Persisting %s = %o", key, value);
+      con.log("Persisting %s = %o", key, value);
       await stor.set({ [key]: value });
     });
   }
@@ -49,7 +49,7 @@ document.querySelector("form").addEventListener("submit", (e) => {
 });
 
 browser.runtime.onMessage.addListener((e) => {
-  console.log("Received message: %o", e);
+  con.log("Received message: %o", e);
 
   switch (e.type) {
     case "sortInProgress":
@@ -59,5 +59,3 @@ browser.runtime.onMessage.addListener((e) => {
 });
 
 browser.runtime.sendMessage({ "type": "querySortInProgress" });
-
-console.log("Loaded sort-panel.js");

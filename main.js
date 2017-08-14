@@ -2,7 +2,7 @@
 
 async function sortNode(node, compareFunction) {
   if (node.unmodifiable) {
-    console.log("Unmodifiable node: %o", node);
+    con.log("Unmodifiable node: %o", node);
     return;
   }
 
@@ -20,7 +20,7 @@ async function sortNode(node, compareFunction) {
     if (n.children) subtrees.push(n);
   }
 
-  if (moved) console.log("Sorted \"%s\", %d items moved", node.title || node.id, moved);
+  if (moved) con.log("Sorted \"%s\", %d items moved", node.title || node.id, moved);
 
   await Promise.all(subtrees.map((n) => sortNode(n, compareFunction)));
 }
@@ -28,7 +28,7 @@ async function sortNode(node, compareFunction) {
 var sortInProgress = false;
 
 function setSortInProgress(value=sortInProgress) {
-  console.log("Sort in progress: %o", value);
+  con.log("Sort in progress: %o", value);
   sortInProgress = value;
   browser.runtime.sendMessage({ type: "sortInProgress", value: value });
 }
@@ -44,11 +44,11 @@ async function sortRoot(spec) {
     setSortInProgress(false);
   }
 
-  console.log("Success!");
+  con.log("Success!");
 }
 
 browser.runtime.onMessage.addListener((e) => {
-  console.log("Received message: %o", e);
+  con.log("Received message: %o", e);
 
   switch (e.type) {
     case "sortRoot":
@@ -60,5 +60,3 @@ browser.runtime.onMessage.addListener((e) => {
       break;
   }
 });
-
-console.log("Loaded main.js");

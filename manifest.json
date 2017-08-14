@@ -23,6 +23,7 @@
 
   "background": {
     "scripts": [
+      "lib/prelude.js",
       "lib/compare-functions.js",
       "main.js"
     ]
