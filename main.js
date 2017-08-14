@@ -2,10 +2,10 @@
 
 // XXX: Separators currently exist as invisible nodes that result in index jumps.
 // This logic here will break horribly if separators ever become actual nodes.
-function sliceAndSort(arr, compareFunction) {
+function sliceAndSort(arr) {
   let sorted = [], sortSlice = (start, end) => sorted.push({
     start: arr[start].index,
-    items: arr.slice(start, end).sort(compareFunction)
+    items: arr.slice(start, end).sort(sortConf.func)
   });
 
   let len = arr.length;
@@ -25,7 +25,7 @@ function sliceAndSort(arr, compareFunction) {
   return sorted;
 }
 
-async function sortNode(node, compareFunction) {
+async function sortNode(node) {
   if (node.unmodifiable) {
     con.log("Unmodifiable node: %o", node);
     return;
@@ -39,7 +39,7 @@ async function sortNode(node, compareFunction) {
   let children = node.children || await browser.bookmarks.getChildren(node.id);
   let subtrees = [];
 
-  for (let {start, items} of sliceAndSort(children, compareFunction)) {
+  for (let {start, items} of sliceAndSort(children)) {
     let moved = 0, len = items.length;
 
     for (let i = 0; i < len; i++) {
@@ -59,7 +59,7 @@ async function sortNode(node, compareFunction) {
     }
   }
 
-  await Promise.all(subtrees.map((n) => sortNode(n, compareFunction)));
+  await Promise.all(subtrees.map((n) => sortNode(n)));
 }
 
 var sortInProgress = false;
@@ -70,13 +70,12 @@ function setSortInProgress(value=sortInProgress) {
   browser.runtime.sendMessage({ type: "sortInProgress", value: value });
 }
 
-async function sortRoot(conf) {
+async function sortRoot() {
   let root = (await browser.bookmarks.getTree())[0];
-  let func = makeCompareFunction(conf);
 
   try {
     setSortInProgress(true);
-    await sortNode(root, func);
+    await sortNode(root);
   } finally {
     setSortInProgress(false);
   }
@@ -84,17 +83,18 @@ async function sortRoot(conf) {
   con.log("Success!");
 }
 
-browser.runtime.onMessage.addListener((e) => {
+browser.runtime.onMessage.addListener(async (e) => {
   con.log("Received message: %o", e);
 
   switch (e.type) {
     case "sort":
       if (sortInProgress) throw "Sort already in progress!";
-      sortRoot(e.conf);
+      sortConf.set(e.conf);
+      await sortRoot();
       return;
 
     case "popupOpened":
       setSortInProgress();
-      return;
+      return sortConf.conf;
   }
 });

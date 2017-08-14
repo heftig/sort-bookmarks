@@ -1,37 +1,26 @@
 "use strict";
 
-async function persistElements(elements) {
-  let stor = browser.storage.sync;
-  let keys = elements.map((e) => `popupForm-${e.name}`);
-  let len = elements.length;
+function setConf(conf) {
+  con.log("Loading conf: %o", conf);
 
-  con.log("Elements to persist: %o\nKeys: %o", elements, keys);
+  for (let key in conf) {
+    let value = conf[key];
 
-  let values = await stor.get(keys);
-
-  con.log("Loaded values: %o", values);
-
-  for (let i = 0; i < len; i++) {
-    let elem = elements[i], key = keys[i];
-
-    if (key in values) {
-      if ("checked" in elem) {
-        elem.checked = (elem.value == values[key]);
-      } else {
-        elem.value = values[key];
-      }
+    let elems = document.querySelectorAll(`[name="${key}"]`);
+    if (elems.length == 0) {
+      con.warn("No elements for %o", key);
+      continue;
     }
 
-    elem.addEventListener("change", async (e) => {
-      let value = e.target.value;
-      if ("checked" in e.target && !e.target.checked) value = null;
-      con.log("Persisting %s = %o", key, value);
-      await stor.set({ [key]: value });
-    });
+    for (let elem of elems) {
+      if ("checked" in elem) {
+        elem.checked = (elem.value == value);
+      } else {
+        elem.value = value;
+      }
+    }
   }
 }
-
-persistElements(Array.from(document.querySelectorAll(".persisted")));
 
 function handleSortInProgress(value) {
   document.querySelector("button").disabled = value;
@@ -58,4 +47,7 @@ browser.runtime.onMessage.addListener((e) => {
   }
 });
 
-browser.runtime.sendMessage({ "type": "popupOpened" });
+(async function() {
+  let conf = await browser.runtime.sendMessage({ "type": "popupOpened" });
+  setConf(conf);
+})();
