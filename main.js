@@ -1,5 +1,30 @@
 "use strict";
 
+// XXX: Separators currently exist as invisible nodes that result in index jumps.
+// This logic here will break horribly if separators ever become actual nodes.
+function sliceAndSort(arr, compareFunction) {
+  let sorted = [], sortSlice = (start, end) => sorted.push({
+    start: arr[start].index,
+    items: arr.slice(start, end).sort(compareFunction)
+  });
+
+  let len = arr.length;
+  if (len > 0) {
+    let sliceStart = 0;
+
+    for (let i = 1; i < len; i++) {
+      if (arr[i - 1].index + 1 != arr[i].index) {
+        sortSlice(sliceStart, i);
+        sliceStart = i;
+      }
+    }
+
+    sortSlice(sliceStart, len);
+  }
+
+  return sorted;
+}
+
 async function sortNode(node, compareFunction) {
   if (node.unmodifiable) {
     con.log("Unmodifiable node: %o", node);
@@ -8,8 +33,7 @@ async function sortNode(node, compareFunction) {
 
   let subtrees = [];
 
-  {
-    let start = 0, items = node.children.slice().sort(compareFunction);
+  for (let {start, items} of sliceAndSort(node.children, compareFunction)) {
     let moved = 0, len = items.length;
 
     for (let i = 0; i < len; i++) {
