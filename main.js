@@ -31,9 +31,15 @@ async function sortNode(node, compareFunction) {
     return;
   }
 
+  if (node.url) {
+    con.log("Not a folder: %o", node);
+    return;
+  }
+
+  let children = node.children || await browser.bookmarks.getChildren(node.id);
   let subtrees = [];
 
-  for (let {start, items} of sliceAndSort(node.children, compareFunction)) {
+  for (let {start, items} of sliceAndSort(children, compareFunction)) {
     let moved = 0, len = items.length;
 
     for (let i = 0; i < len; i++) {
@@ -44,7 +50,7 @@ async function sortNode(node, compareFunction) {
         moved++;
       }
 
-      if (n.children) subtrees.push(n);
+      if (!("url" in n)) subtrees.push(n);
     }
 
     if (moved) {
