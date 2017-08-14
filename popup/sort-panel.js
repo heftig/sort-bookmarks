@@ -41,11 +41,11 @@ document.querySelector("form").addEventListener("submit", (e) => {
   e.preventDefault();
 
   let data = new FormData(e.target);
-  let spec = {};
-  for (let [key, value] of data.entries()) spec[key] = value;
+  let conf = {};
+  for (let [key, value] of data.entries()) conf[key] = value;
 
   handleSortInProgress(true);
-  browser.runtime.sendMessage({ "type": "sortRoot", "spec": spec });
+  browser.runtime.sendMessage({ "type": "sort", "conf": conf });
 });
 
 browser.runtime.onMessage.addListener((e) => {
