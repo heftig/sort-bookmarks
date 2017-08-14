@@ -23,8 +23,8 @@
 
   "background": {
     "scripts": [
-      "background/compare-functions.js",
-      "background/main.js"
+      "lib/compare-functions.js",
+      "main.js"
     ]
   },
 
