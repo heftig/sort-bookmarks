@@ -36,51 +36,39 @@ async function sortNode(node) {
     return;
   }
 
-  let children = node.children || await browser.bookmarks.getChildren(node.id);
-  let subtrees = [];
+  let promise;
+  while (promise = await sortLock.wait(node.id));
 
-  for (let {start, items} of sliceAndSort(children)) {
-    let moved = 0, len = items.length;
+  await sortLock.run(node.id, async () => {
+    let children = node.children || await browser.bookmarks.getChildren(node.id);
+    let subtrees = [];
 
-    for (let i = 0; i < len; i++) {
-      let n = items[i], index = start + i;
+    for (let {start, items} of sliceAndSort(children)) {
+      let moved = 0, len = items.length;
 
-      if (index !== n.index + moved) {
-        await browser.bookmarks.move(n.id, { index: index });
-        moved++;
+      for (let i = 0; i < len; i++) {
+        let n = items[i], index = start + i;
+
+        if (index !== n.index + moved) {
+          await browser.bookmarks.move(n.id, { index: index });
+          moved++;
+        }
+
+        if (!("url" in n)) subtrees.push(n);
       }
 
-      if (!("url" in n)) subtrees.push(n);
+      if (moved) {
+        con.log("Sorted \"%s\", slice %d..%d, %d items moved",
+          node.title || node.id, start, start + len, moved);
+      }
     }
 
-    if (moved) {
-      con.log("Sorted \"%s\", slice %d..%d, %d items moved",
-        node.title || node.id, start, start + len, moved);
-    }
-  }
-
-  await Promise.all(subtrees.map((n) => sortNode(n)));
-}
-
-var sortInProgress = false;
-
-function setSortInProgress(value=sortInProgress) {
-  con.log("Sort in progress: %o", value);
-  sortInProgress = value;
-  browser.runtime.sendMessage({ type: "sortInProgress", value: value });
+    await Promise.all(subtrees.map((n) => sortNode(n)));
+  });
 }
 
 async function getRoot() {
   return (await browser.bookmarks.getTree())[0];
-}
-
-async function sortRoot() {
-  try {
-    setSortInProgress(true);
-    await sortNode(await getRoot());
-  } finally {
-    setSortInProgress(false);
-  }
 }
 
 browser.runtime.onMessage.addListener(async (e) => {
@@ -88,14 +76,13 @@ browser.runtime.onMessage.addListener(async (e) => {
 
   switch (e.type) {
     case "sort":
-      if (sortInProgress) throw "Sort already in progress!";
       sortConf.set(e.conf);
-      await sortRoot();
+      await sortNode(await getRoot());
       con.log("Success!");
       return;
 
     case "popupOpened":
-      setSortInProgress();
+      sortLock.notify();
       return sortConf.conf;
   }
 });
