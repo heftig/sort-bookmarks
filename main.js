@@ -2,6 +2,7 @@
 
 // XXX: Separators currently exist as invisible nodes that result in index jumps.
 // This logic here will break horribly if separators ever become actual nodes.
+// https://bugzilla.mozilla.org/show_bug.cgi?id=1293853
 function sliceAndSort(arr) {
   let sorted = [], sortSlice = (start, end) => sorted.push({
     start: arr[start].index,
