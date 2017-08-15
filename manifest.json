@@ -23,7 +23,7 @@
 
   "background": {
     "scripts": [
-      "lib/prelude.js",
+      "lib/con.js",
       "lib/compare-functions.js",
       "lib/sort-lock.js",
       "lib/sort-conf.js",
