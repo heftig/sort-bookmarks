@@ -73,18 +73,62 @@ async function sortNode(node, options = {}) {
   });
 }
 
+async function autoSort(node, options={}) {
+  if (!sortConf.conf.autosort) return;
+
+  con.log("Autosorting %s", node.id);
+  await sortNode(node, options);
+}
+
 async function getRoot() {
   return (await browser.bookmarks.getTree())[0];
 }
+
+async function getNode(id) {
+  return (await browser.bookmarks.get(id))[0];
+}
+
+async function autoSortId(id) {
+  await autoSort(await getNode(id));
+}
+
+browser.bookmarks.onCreated.addListener((id, node) => {
+  con.log("Node created: %o", node);
+  autoSortId(node.parentId);
+});
+
+browser.bookmarks.onRemoved.addListener((id, info) => {
+  con.log("Node removed: %o", info.node);
+  autoSortId(info.parentId);
+});
+
+browser.bookmarks.onChanged.addListener(async (id, info) => {
+  let node = await getNode(id);
+  con.log("Node changed: %o", node);
+  autoSortId(node.parentId);
+});
+
+browser.bookmarks.onMoved.addListener((id, info) => {
+  // FIXME: This gets fired when we move bookmarks.
+  // I don't think it's guaranteed that we see the event before we "exit" the node,
+  // so reacting to moves within a folder may lead to infinite looping.
+  if (info.parentId == info.oldParentId) return;
+
+  con.log("Node moved: %s", id);
+  autoSortId(info.parentId);
+});
+
+sortConf.onUpdate.add(async () => autoSort(await getRoot(), { recurse: true }));
 
 browser.runtime.onMessage.addListener(async (e) => {
   con.log("Received message: %o", e);
 
   switch (e.type) {
     case "sort":
-      sortConf.set(e.conf);
-      await sortNode(await getRoot(), { recurse: true });
-      con.log("Success!");
+      if (!sortConf.set(e.conf) || !sortConf.conf.autosort) {
+        await sortNode(await getRoot(), { recurse: true });
+        con.log("Success!");
+      }
       return;
 
     case "popupOpened":
