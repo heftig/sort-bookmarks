@@ -25,7 +25,9 @@ function sliceAndSort(arr) {
   return sorted;
 }
 
-async function sortNode(node) {
+async function sortNode(node, options = {}) {
+  let {recurse = false} = options;
+
   if (node.unmodifiable) {
     con.log("Unmodifiable node: %o", node);
     return;
@@ -37,7 +39,11 @@ async function sortNode(node) {
   }
 
   let promise;
-  while (promise = await sortLock.wait(node.id));
+  while (promise = await sortLock.wait(node.id)) {
+    // Some other task preempted us; if we're not recursive
+    // assume we're redundant and bail out early
+    if (!recurse) return;
+  }
 
   await sortLock.run(node.id, async () => {
     let children = node.children || await browser.bookmarks.getChildren(node.id);
@@ -63,7 +69,7 @@ async function sortNode(node) {
       }
     }
 
-    await Promise.all(subtrees.map((n) => sortNode(n)));
+    if (recurse) await Promise.all(subtrees.map((n) => sortNode(n, options)));
   });
 }
 
@@ -77,7 +83,7 @@ browser.runtime.onMessage.addListener(async (e) => {
   switch (e.type) {
     case "sort":
       sortConf.set(e.conf);
-      await sortNode(await getRoot());
+      await sortNode(await getRoot(), { recurse: true });
       con.log("Success!");
       return;
 
