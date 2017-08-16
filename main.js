@@ -3,13 +3,13 @@
 // XXX: Separators currently exist as invisible nodes that result in index jumps.
 // This logic here will break horribly if separators ever become actual nodes.
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1293853
-function sliceAndSort(arr) {
-  let sorted = [], sortSlice = (start, end) => sorted.push({
+const sliceAndSort = arr => {
+  const sorted = [], sortSlice = (start, end) => sorted.push({
     start: arr[start].index,
     items: arr.slice(start, end).sort(sortConf.func)
   });
 
-  let len = arr.length;
+  const len = arr.length;
   if (len > 0) {
     let sliceStart = 0;
 
@@ -26,8 +26,8 @@ function sliceAndSort(arr) {
   return sorted;
 }
 
-async function sortNode(node, options = {}) {
-  let {recurse = false} = options;
+const sortNode = async (node, options = {}) => {
+  const {recurse = false} = options;
 
   if (node.unmodifiable) {
     con.log("Unmodifiable node: %o", node);
@@ -47,17 +47,18 @@ async function sortNode(node, options = {}) {
   }
 
   await sortLock.run(node.id, async () => {
-    let children = node.children || await browser.bookmarks.getChildren(node.id);
-    let subtrees = [];
+    const children = node.children || await browser.bookmarks.getChildren(node.id);
+    const subtrees = [];
 
-    for (let {start, items} of sliceAndSort(children)) {
-      let moved = 0, len = items.length;
+    for (const {start, items} of sliceAndSort(children)) {
+      let moved = 0;
 
+      const len = items.length;
       for (let i = 0; i < len; i++) {
-        let n = items[i], index = start + i;
+        const n = items[i], index = start + i;
 
         if (index !== n.index + moved) {
-          await browser.bookmarks.move(n.id, { index: index });
+          await browser.bookmarks.move(n.id, { index });
           moved++;
         }
 
@@ -70,28 +71,21 @@ async function sortNode(node, options = {}) {
       }
     }
 
-    if (recurse) await Promise.all(subtrees.map((n) => sortNode(n, options)));
+    if (recurse) await Promise.all(subtrees.map(n => sortNode(n, options)));
   });
 }
 
-async function autoSort(node, options={}) {
+const autoSort = async (node, options={}) => {
   if (!sortConf.conf.autosort) return;
 
   con.log("Autosorting %s", node.id);
   await sortNode(node, options);
 }
 
-async function getRoot() {
-  return (await browser.bookmarks.getTree())[0];
-}
+const getRoot = async () => (await browser.bookmarks.getTree())[0];
+const getNode = async id => (await browser.bookmarks.get(id))[0];
 
-async function getNode(id) {
-  return (await browser.bookmarks.get(id))[0];
-}
-
-async function autoSortId(id) {
-  await autoSort(await getNode(id));
-}
+const autoSortId = async id => await autoSort(await getNode(id));
 
 browser.bookmarks.onCreated.addListener((id, node) => {
   con.log("Node created: %o", node);
@@ -104,7 +98,7 @@ browser.bookmarks.onRemoved.addListener((id, info) => {
 });
 
 browser.bookmarks.onChanged.addListener(async (id, info) => {
-  let node = await getNode(id);
+  const node = await getNode(id);
   con.log("Node changed: %o", node);
   autoSortId(node.parentId);
 });
@@ -121,7 +115,7 @@ browser.bookmarks.onMoved.addListener((id, info) => {
 
 sortConf.onUpdate.add(async () => autoSort(await getRoot(), { recurse: true }));
 
-browser.runtime.onMessage.addListener(async (e) => {
+browser.runtime.onMessage.addListener(async e => {
   con.log("Received message: %o", e);
 
   switch (e.type) {
