@@ -53,9 +53,8 @@ const sortNode = async (node, options = {}) => {
     for (const {start, items} of sliceAndSort(children)) {
       let moved = 0;
 
-      const len = items.length;
-      for (let i = 0; i < len; i++) {
-        const n = items[i], index = start + i;
+      for (const [i, n] of items.entries()) {
+        const index = start + i;
 
         if (index !== n.index + moved) {
           await browser.bookmarks.move(n.id, { index });
@@ -67,7 +66,7 @@ const sortNode = async (node, options = {}) => {
 
       if (moved) {
         con.log("Sorted \"%s\", slice %d..%d, %d items moved",
-          node.title || node.id, start, start + len, moved);
+          node.title || node.id, start, start + items.length, moved);
       }
     }
 
