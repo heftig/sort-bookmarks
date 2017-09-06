@@ -1,5 +1,14 @@
 "use strict";
 
+const timedRun = async (func) => {
+  if (!debugMode) return await func();
+  let t = performance.now();
+  const res = await func();
+  t = performance.now() - t;
+  con.log("Completed in %.3fs", t / 1000);
+  return res;
+}
+
 // XXX: Separators currently exist as invisible nodes that result in index jumps.
 // This logic here will break horribly if separators ever become actual nodes.
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1293853
