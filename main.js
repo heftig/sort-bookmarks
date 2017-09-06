@@ -47,10 +47,9 @@ const sortNode = async (node, options = {}) => {
   }
 
   await sortLock.run(node.id, async () => {
-    const children = node.children || await browser.bookmarks.getChildren(node.id);
     const subtrees = [];
 
-    for (const {start, items} of sliceAndSort(children)) {
+    for (const {start, items} of sliceAndSort(node.children)) {
       let moved = 0;
 
       for (const [i, n] of items.entries()) {
@@ -61,7 +60,7 @@ const sortNode = async (node, options = {}) => {
           moved++;
         }
 
-        if (!("url" in n)) subtrees.push(n);
+        if (n.children) subtrees.push(n);
       }
 
       if (moved) {
@@ -81,38 +80,13 @@ const autoSort = async (node, options={}) => {
   await sortNode(node, options);
 }
 
-const getRoot = async () => (await browser.bookmarks.getTree())[0];
-const getNode = async id => (await browser.bookmarks.get(id))[0];
+bookmarksTree.onChanged.add(async id => await autoSort(await bookmarksTree.getNode(id)));
 
-const autoSortId = async id => await autoSort(await getNode(id));
+sortConf.onUpdate.add(async () => {
+  bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
 
-browser.bookmarks.onCreated.addListener((id, node) => {
-  con.log("Node created: %o", node);
-  autoSortId(node.parentId);
+  await autoSort(await bookmarksTree.getRoot(), { recurse: true });
 });
-
-browser.bookmarks.onRemoved.addListener((id, info) => {
-  con.log("Node removed: %o", info.node);
-  autoSortId(info.parentId);
-});
-
-browser.bookmarks.onChanged.addListener(async (id, info) => {
-  const node = await getNode(id);
-  con.log("Node changed: %o", node);
-  autoSortId(node.parentId);
-});
-
-browser.bookmarks.onMoved.addListener((id, info) => {
-  // FIXME: This gets fired when we move bookmarks.
-  // I don't think it's guaranteed that we see the event before we "exit" the node,
-  // so reacting to moves within a folder may lead to infinite looping.
-  if (info.parentId == info.oldParentId) return;
-
-  con.log("Node moved: %s", id);
-  autoSortId(info.parentId);
-});
-
-sortConf.onUpdate.add(async () => autoSort(await getRoot(), { recurse: true }));
 
 browser.runtime.onMessage.addListener(async e => {
   con.log("Received message: %o", e);
@@ -120,8 +94,7 @@ browser.runtime.onMessage.addListener(async e => {
   switch (e.type) {
     case "sort":
       if (!sortConf.set(e.conf) || !sortConf.conf.autosort) {
-        await sortNode(await getRoot(), { recurse: true });
-        con.log("Success!");
+        await sortNode(await bookmarksTree.getRoot(), { recurse: true });
       }
       return;
 

@@ -24,6 +24,7 @@
   "background": {
     "scripts": [
       "lib/con.js",
+      "lib/bookmarks-tree.js",
       "lib/compare-functions.js",
       "lib/sort-lock.js",
       "lib/sort-conf.js",
