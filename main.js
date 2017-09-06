@@ -43,7 +43,7 @@ const sortNode = async (node, options = {}) => {
     return;
   }
 
-  if (node.url) {
+  if (!isFolder(node)) {
     con.log("Not a folder: %o", node);
     return;
   }
