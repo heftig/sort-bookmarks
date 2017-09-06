@@ -9,11 +9,9 @@ const timedRun = async (func) => {
   return res;
 }
 
-// XXX: Separators currently exist as invisible nodes that result in index jumps.
-// This logic here will break horribly if separators ever become actual nodes.
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1293853
 const sliceAndSort = arr => {
-  let sliceStart = 0;
+  let sliceStart = arr.findIndex(node => !isSeparator(node));
+  if (sliceStart < 0) return [];
 
   const sorted = [], sortSlice = (start, end) => {
     if (start < end) sorted.push({
@@ -23,10 +21,16 @@ const sliceAndSort = arr => {
   };
 
   const len = arr.length;
-  for (let i = 1; i < len; i++) {
+  for (let i = sliceStart + 1; i < len; i++) {
     const node = arr[i];
 
-    if (arr[i - 1].index + 1 != node.index) {
+    if (isSeparator(node)) {
+      // Nightly 57
+      con.log("Found a separator at %d: %o", i, node);
+      sortSlice(sliceStart, i);
+      sliceStart = i + 1;
+    } else if (arr[i - 1].index + 1 != node.index) {
+      // Pre-57, separators leave gaps
       con.log("Found a separator before %d", i);
       sortSlice(sliceStart, i);
       sliceStart = i;
