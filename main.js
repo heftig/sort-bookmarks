@@ -13,24 +13,28 @@ const timedRun = async (func) => {
 // This logic here will break horribly if separators ever become actual nodes.
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1293853
 const sliceAndSort = arr => {
-  const sorted = [], sortSlice = (start, end) => sorted.push({
-    start: arr[start].index,
-    items: arr.slice(start, end).sort(sortConf.func)
-  });
+  let sliceStart = 0;
+
+  const sorted = [], sortSlice = (start, end) => {
+    if (start < end) sorted.push({
+      start: arr[start].index,
+      items: arr.slice(start, end).sort(sortConf.func)
+    });
+  };
 
   const len = arr.length;
-  if (len > 0) {
-    let sliceStart = 0;
+  for (let i = 1; i < len; i++) {
+    const node = arr[i];
 
-    for (let i = 1; i < len; i++) {
-      if (arr[i - 1].index + 1 != arr[i].index) {
-        sortSlice(sliceStart, i);
-        sliceStart = i;
-      }
+    if (arr[i - 1].index + 1 != node.index) {
+      con.log("Found a separator before %d", i);
+      sortSlice(sliceStart, i);
+      sliceStart = i;
     }
-
-    sortSlice(sliceStart, len);
   }
+
+  // Sort last slice
+  sortSlice(sliceStart, len);
 
   return sorted;
 }
