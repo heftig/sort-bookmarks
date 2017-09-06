@@ -1,3 +1,7 @@
 button {
   width: 100%;
 }
+
+fieldset {
+  margin-bottom: 1em;
+}

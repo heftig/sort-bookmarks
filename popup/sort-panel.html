@@ -16,24 +16,25 @@
         <option value="last">last</option>
       </select>
     </p>
-    <p>
+    <fieldset>
+      <legend>Sort bookmarks by</legend>
       <div>
         <input type="radio" id="by-title" name="by" value="title" checked>
-        <label for="by-title">Sort by title</label>
+        <label for="by-title">Title</label>
       </div>
       <div>
         <input type="radio" id="by-url" name="by" value="url">
-        <label for="by-url">Sort by URL</label>
+        <label for="by-url">URL</label>
       </div>
       <div>
         <input type="radio" id="by-date-added" name="by" value="date-added">
-        <label for="by-date-added">Sort by date added</label>
+        <label for="by-date-added">Date added</label>
       </div>
-    </p>
-    <p>
-      <input type="checkbox" id="reversed" name="reversed" value="reversed">
-      <label for="reversed">Reversed</label>
-    </p>
+      <div>
+        <input type="checkbox" id="reversed" name="reversed" value="reversed">
+        <label for="reversed">Reversed</label>
+      </div>
+    </fieldset>
     <p>
       <input type="checkbox" id="autosort" name="autosort" value="autosort">
       <label for="autosort">Always keep sorted</label>
