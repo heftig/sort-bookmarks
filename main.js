@@ -89,12 +89,12 @@ const autoSort = async (node, options={}) => {
   await sortNode(node, options);
 }
 
-bookmarksTree.onChanged.add(async id => await autoSort(await bookmarksTree.getNode(id)));
+bookmarksTree.onChanged.add(async id => await timedRun(async () => await autoSort(await bookmarksTree.getNode(id))));
 
 sortConf.onUpdate.add(async () => {
   bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
 
-  await autoSort(await bookmarksTree.getRoot(), { recurse: true });
+  await timedRun(async () => await autoSort(await bookmarksTree.getRoot(), { recurse: true }));
 });
 
 browser.runtime.onMessage.addListener(async e => {
@@ -103,7 +103,7 @@ browser.runtime.onMessage.addListener(async e => {
   switch (e.type) {
     case "sort":
       if (!sortConf.set(e.conf) || !sortConf.conf.autosort) {
-        await sortNode(await bookmarksTree.getRoot(), { recurse: true });
+        await timedRun(async () => await sortNode(await bookmarksTree.getRoot(), { recurse: true }));
       }
       return;
 
