@@ -6,5 +6,5 @@ scour:
 	  mv -f "$$i.scour" "$$i"; \
 	done
 
-zip:
-	git archive --format zip -o sort-bookmarks-$(shell git describe --tags HEAD).zip HEAD
+xpi:
+	git archive --format zip -o sort-bookmarks-$(shell git describe --tags HEAD).xpi HEAD
