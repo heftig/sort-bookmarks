@@ -31,6 +31,7 @@ document.querySelector("form").addEventListener("submit", e => {
 
   handleSortInProgress(true);
   browser.runtime.sendMessage({ type: "sort", conf });
+  window.close();
 });
 
 browser.runtime.onMessage.addListener(e => {
