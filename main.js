@@ -101,6 +101,7 @@ bookmarksTree.onChanged.add(async id => await timedRun(async () => await autoSor
 
 sortConf.onUpdate.add(async () => {
   bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
+  bookmarksTree.historyEnabled = false;
 
   await timedRun(async () => await autoSort(await bookmarksTree.getRoot(), { recurse: true }));
 });
