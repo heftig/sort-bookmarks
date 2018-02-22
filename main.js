@@ -31,7 +31,7 @@ const sliceAndSort = arr => {
       sliceStart = i + 1;
     } else if (arr[i - 1].index + 1 != node.index) {
       // Pre-57, separators leave gaps
-      con.log("Found a separator before %d", i);
+      con.log("Found a separator before %d\n  between %o\n      and %o", i, arr[i - 1], node);
       sortSlice(sliceStart, i);
       sliceStart = i;
     }
@@ -65,6 +65,8 @@ const sortNode = async (node, options = {}) => {
 
   await sortLock.run(node.id, async () => {
     const subtrees = [];
+
+    con.log("Sorting %s: %o", node.id, node.title);
 
     for (const {start, items} of sliceAndSort(node.children)) {
       let moved = 0;
