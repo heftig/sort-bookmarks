@@ -110,7 +110,9 @@ browser.runtime.onMessage.addListener(async e => {
 
   switch (e.type) {
     case "sort":
-      if (!sortConf.set(e.conf) || !sortConf.conf.autosort) {
+      if (sortConf.set(e.conf) && sortConf.conf.autosort) {
+        // Configuration change will trigger autosort
+      } else {
         await timedRun(async () => await sortNode(await bookmarksTree.getRoot(), { recurse: true }));
       }
       return;
