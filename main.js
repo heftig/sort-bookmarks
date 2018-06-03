@@ -23,16 +23,16 @@ const sliceAndSort = arr => {
     const len = arr.length;
     for (let i = sliceStart + 1; i < len; i++) {
         const node = arr[i];
+        const gap = node.index - arr[i - 1].index - 1;
 
         if (isSeparator(node)) {
-            // Nightly 57
+            // Firefox 57+
             con.log("Found a separator at %d: %o", i, node);
             sortSlice(sliceStart, i);
             sliceStart = i + 1;
-        } else if (arr[i - 1].index + 1 != node.index) {
+        } else if (gap !== 0) {
             // Pre-57, separators leave gaps
-            con.log("Found a separator before %d\n    between %o\n            and %o",
-                i, arr[i - 1], node);
+            con.log("Found %d separators at %d", gap, i);
             sortSlice(sliceStart, i);
             sliceStart = i;
         }
