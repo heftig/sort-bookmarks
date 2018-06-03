@@ -34,12 +34,12 @@ document.querySelector("form").addEventListener("submit", e => {
   window.close();
 });
 
-browser.runtime.onMessage.addListener(e => {
-  con.log("Received message: %o", e);
+browser.runtime.onMessage.addListener(async (msg, sender) => {
+  con.log("Received message %o from %o", msg, sender);
 
-  switch (e.type) {
+  switch (msg.type) {
     case "sortInProgress":
-      handleSortInProgress(e.value);
+      handleSortInProgress(msg.value);
       break;
   }
 });

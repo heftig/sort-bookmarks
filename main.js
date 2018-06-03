@@ -110,12 +110,12 @@ sortConf.onUpdate.add(async () => {
   await timedRun(async () => await autoSort(await bookmarksTree.getRoot(), { recurse: true }));
 });
 
-browser.runtime.onMessage.addListener(async e => {
-  con.log("Received message: %o", e);
+browser.runtime.onMessage.addListener(async (msg, sender) => {
+  con.log("Received message %o from %o", msg, sender);
 
-  switch (e.type) {
+  switch (msg.type) {
     case "sort":
-      if (sortConf.set(e.conf) && sortConf.conf.autosort) {
+      if (sortConf.set(msg.conf) && sortConf.conf.autosort) {
         // Configuration change will trigger autosort
       } else {
         await timedRun(async () => await sortNode(await bookmarksTree.getRoot(), { recurse: true }));
