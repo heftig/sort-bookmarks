@@ -1,46 +1,46 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=200,user-scalable=no">
-  <link rel="stylesheet" href="sort-panel.css">
-  <script src="../lib/con.js" defer></script>
-  <script src="sort-panel.js" defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=200,user-scalable=no">
+    <link rel="stylesheet" href="sort-panel.css">
+    <script src="../lib/con.js" defer></script>
+    <script src="sort-panel.js" defer></script>
 </head>
 <body>
-  <form>
-    <p>
-      <label for="folders">Folders</label>
-      <select id="folders" name="folders">
-        <option value="first" selected>first</option>
-        <option value="inline">inline</option>
-        <option value="last">last</option>
-      </select>
-    </p>
-    <fieldset>
-      <legend>Sort by</legend>
-      <div>
-        <input type="radio" id="by-title" name="by" value="title" checked>
-        <label for="by-title">Title</label>
-      </div>
-      <div>
-        <input type="radio" id="by-url" name="by" value="url">
-        <label for="by-url">URL</label>
-      </div>
-      <div>
-        <input type="radio" id="by-date-added" name="by" value="date-added">
-        <label for="by-date-added">Date added</label>
-      </div>
-      <div>
-        <input type="checkbox" id="reversed" name="reversed" value="reversed">
-        <label for="reversed">Reversed</label>
-      </div>
-    </fieldset>
-    <p>
-      <input type="checkbox" id="autosort" name="autosort" value="autosort">
-      <label for="autosort">Always keep sorted</label>
-    </p>
-    <button type="submit">Confirm (sort)</button>
-  </form>
+    <form>
+        <p>
+            <label for="folders">Folders</label>
+            <select id="folders" name="folders">
+                <option value="first" selected>first</option>
+                <option value="inline">inline</option>
+                <option value="last">last</option>
+            </select>
+        </p>
+        <fieldset>
+            <legend>Sort by</legend>
+            <div>
+                <input type="radio" id="by-title" name="by" value="title" checked>
+                <label for="by-title">Title</label>
+            </div>
+            <div>
+                <input type="radio" id="by-url" name="by" value="url">
+                <label for="by-url">URL</label>
+            </div>
+            <div>
+                <input type="radio" id="by-date-added" name="by" value="date-added">
+                <label for="by-date-added">Date added</label>
+            </div>
+            <div>
+                <input type="checkbox" id="reversed" name="reversed" value="reversed">
+                <label for="reversed">Reversed</label>
+            </div>
+        </fieldset>
+        <p>
+            <input type="checkbox" id="autosort" name="autosort" value="autosort">
+            <label for="autosort">Always keep sorted</label>
+        </p>
+        <button type="submit">Confirm (sort)</button>
+    </form>
 </body>
 </html>

@@ -1,40 +1,40 @@
 {
-  "manifest_version": 2,
-  "name": "Sort Bookmarks",
-  "version": "0.4",
+    "manifest_version": 2,
+    "name": "Sort Bookmarks",
+    "version": "0.4",
 
-  "description": "Sorts bookmarks.",
-  "icons": {
-    "48": "icons/sort-bookmarks.svg",
-    "96": "icons/sort-bookmarks.svg"
-  },
+    "description": "Sorts bookmarks.",
+    "icons": {
+        "48": "icons/sort-bookmarks.svg",
+        "96": "icons/sort-bookmarks.svg"
+    },
 
-  "applications": {
-    "gecko": {
-      "id": "sort-bookmarks@heftig",
-      "strict_min_version": "54.0"
+    "applications": {
+        "gecko": {
+            "id": "sort-bookmarks@heftig",
+            "strict_min_version": "54.0"
+        }
+    },
+
+    "permissions": [
+        "bookmarks",
+        "storage"
+    ],
+
+    "background": {
+        "scripts": [
+            "lib/con.js",
+            "lib/bookmarks-tree.js",
+            "lib/compare-functions.js",
+            "lib/sort-lock.js",
+            "lib/sort-conf.js",
+            "main.js"
+        ]
+    },
+
+    "browser_action": {
+        "default_icon": "icons/sort-bookmarks.svg",
+        "default_title": "Sort bookmarks...",
+        "default_popup": "popup/sort-panel.html"
     }
-  },
-
-  "permissions": [
-    "bookmarks",
-    "storage"
-  ],
-
-  "background": {
-    "scripts": [
-      "lib/con.js",
-      "lib/bookmarks-tree.js",
-      "lib/compare-functions.js",
-      "lib/sort-lock.js",
-      "lib/sort-conf.js",
-      "main.js"
-    ]
-  },
-
-  "browser_action": {
-    "default_icon": "icons/sort-bookmarks.svg",
-    "default_title": "Sort bookmarks...",
-    "default_popup": "popup/sort-panel.html"
-  }
 }

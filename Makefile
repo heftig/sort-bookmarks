@@ -1,9 +1,9 @@
 scour:
 	for i in icons/*.svg; do \
-	  scour --remove-descriptive-elements --no-renderer-workaround --enable-id-stripping \
-	        --create-groups --strip-xml-prolog --enable-comment-stripping --shorten-ids \
-	        --nindent=2 "$$i" "$$i.scour" && \
-	  mv -f "$$i.scour" "$$i"; \
+	    scour --remove-descriptive-elements --no-renderer-workaround --enable-id-stripping \
+	          --create-groups --strip-xml-prolog --enable-comment-stripping --shorten-ids \
+	          --nindent=4 "$$i" "$$i.scour" && \
+	    mv -f "$$i.scour" "$$i"; \
 	done
 
 xpi:
