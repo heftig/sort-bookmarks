@@ -69,22 +69,25 @@ const sortNode = async (node, options = {}) => {
     con.log("Sorting %s: %o", node.id, node.title);
 
     for (const {start, items} of sliceAndSort(node.children)) {
-      let moved = 0;
+      let moved = 0, errors = 0;
 
       for (const [i, n] of items.entries()) {
-        const index = start + i;
+        const index = start + i - errors;
 
-        if (index !== n.index + moved) {
+        if (index !== n.index + moved) try {
           await browser.bookmarks.move(n.id, { index });
           moved++;
+        } catch (e) {
+          con.log("Failed to move %o: %o", n, e);
+          errors++;
         }
 
         if (n.children) subtrees.push(n);
       }
 
-      if (moved) {
-        con.log("Sorted \"%s\", slice %d..%d, %d items moved",
-          node.title || node.id, start, start + items.length, moved);
+      if (moved || errors) {
+        con.log("Sorted \"%s\", slice %d..%d, %d items moved, %d items failed",
+          node.title || node.id, start, start + items.length, moved, errors);
       }
     }
 
