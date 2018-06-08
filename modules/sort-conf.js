@@ -1,4 +1,5 @@
-"use strict";
+import con from "./con.js";
+import makeCompareFunction from "./compare.js";
 
 const sortConf = {
     conf: {},
@@ -55,3 +56,5 @@ browser.storage.onChanged.addListener((changes, area) => {
 
     sortConf.set(conf);
 })();
+
+export default sortConf;

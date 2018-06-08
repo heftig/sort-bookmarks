@@ -12,7 +12,7 @@
     "applications": {
         "gecko": {
             "id": "sort-bookmarks@heftig",
-            "strict_min_version": "54.0"
+            "strict_min_version": "60.0"
         }
     },
 
@@ -22,19 +22,12 @@
     ],
 
     "background": {
-        "scripts": [
-            "lib/con.js",
-            "lib/bookmarks-tree.js",
-            "lib/compare-functions.js",
-            "lib/sort-lock.js",
-            "lib/sort-conf.js",
-            "main.js"
-        ]
+        "page": "main.html"
     },
 
     "browser_action": {
         "default_icon": "icons/sort-bookmarks.svg",
         "default_title": "Sort bookmarks...",
-        "default_popup": "popup/sort-panel.html"
+        "default_popup": "popup.html"
     }
 }

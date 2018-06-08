@@ -1,14 +1,12 @@
-"use strict";
+import con from "./con.js";
+import * as util from "./util.js";
 
 const sortLock = {
     sorts: new Map(),
 
     async notify() {
         try {
-            await browser.runtime.sendMessage({
-                type: "sortInProgress",
-                value: this.sorts.size > 0
-            });
+            await util.sendMessage("sortInProgress", this.sorts.size > 0);
         } catch (e) {
             // FIXME: Ignore; popup frame might not exist
         }
@@ -45,3 +43,5 @@ const sortLock = {
         }
     }
 };
+
+export default sortLock;

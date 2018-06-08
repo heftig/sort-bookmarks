@@ -1,16 +1,11 @@
-"use strict";
+import con from "./con.js";
+import bookmarksTree from "./bookmarks-tree.js";
+import sortConf from "./sort-conf.js";
+import sortLock from "./sort-lock.js";
+import * as util from "./util.js";
 
-const timedRun = async (func) => {
-    if (!debugMode) return await func();
-    let t = performance.now();
-    const res = await func();
-    t = performance.now() - t;
-    con.log("Completed in %.3fs", t / 1000);
-    return res;
-}
-
-const sliceAndSort = arr => {
-    let sliceStart = arr.findIndex(node => !isSeparator(node));
+function sliceAndSort(arr) {
+    let sliceStart = arr.findIndex(node => !util.isSeparator(node));
     if (sliceStart < 0) return [];
 
     const sorted = [], sortSlice = (start, end) => {
@@ -25,7 +20,7 @@ const sliceAndSort = arr => {
         const node = arr[i];
         const gap = node.index - arr[i - 1].index - 1;
 
-        if (isSeparator(node)) {
+        if (util.isSeparator(node)) {
             // Firefox 57+
             con.log("Found a separator at %d: %o", i, node);
             sortSlice(sliceStart, i);
@@ -44,7 +39,7 @@ const sliceAndSort = arr => {
     return sorted;
 }
 
-const sortNode = async (node, options = {}) => {
+async function sortNode(node, options = {}) {
     const {recurse = false} = options;
 
     if (node.unmodifiable) {
@@ -52,7 +47,7 @@ const sortNode = async (node, options = {}) => {
         return;
     }
 
-    if (!isFolder(node)) {
+    if (!util.isFolder(node)) {
         con.log("Not a folder: %o", node);
         return;
     }
@@ -96,7 +91,7 @@ const sortNode = async (node, options = {}) => {
     });
 }
 
-const autoSort = async (node, options={}) => {
+async function autoSort(node, options={}) {
     if (!sortConf.conf.autosort) return;
 
     con.log("Autosorting %s", node.id);
@@ -104,7 +99,7 @@ const autoSort = async (node, options={}) => {
 }
 
 bookmarksTree.onChanged.add(async id => {
-    await timedRun(async () => {
+    await util.timedRun(async () => {
         const node = await bookmarksTree.getNode(id);
         await autoSort(node);
     });
@@ -112,29 +107,26 @@ bookmarksTree.onChanged.add(async id => {
 
 sortConf.onUpdate.add(async () => {
     bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
-    await timedRun(async () => {
+    await util.timedRun(async () => {
         const node = await bookmarksTree.getRoot();
         await autoSort(node, { recurse: true });
     });
 });
 
-browser.runtime.onMessage.addListener(async (msg, sender) => {
-    con.log("Received message %o from %o", msg, sender);
+util.handleMessages({
+    async sort(conf) {
+        if (sortConf.set(conf) && sortConf.conf.autosort) {
+            // Configuration change will trigger autosort
+        } else {
+            await util.timedRun(async () => {
+                const node = await bookmarksTree.getRoot();
+                await sortNode(node, { recurse: true });
+            });
+        }
+    },
 
-    switch (msg.type) {
-        case "sort":
-            if (sortConf.set(msg.conf) && sortConf.conf.autosort) {
-                // Configuration change will trigger autosort
-            } else {
-                await timedRun(async () => {
-                    const node = await bookmarksTree.getRoot();
-                    await sortNode(node, { recurse: true });
-                });
-            }
-            return;
-
-        case "popupOpened":
-            sortLock.notify();
-            return sortConf.conf;
+    popupOpened() {
+        sortLock.notify();
+        return sortConf.conf;
     }
 });

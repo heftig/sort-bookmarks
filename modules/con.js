@@ -1,5 +1,3 @@
-"use strict";
-
 var debugMode = false;
 var con = new Proxy({}, {
     get(target, property, receiver) {
@@ -16,3 +14,5 @@ var con = new Proxy({}, {
         con.log("Initialized debug logging");
     }
 })();
+
+export { con as default, debugMode };
