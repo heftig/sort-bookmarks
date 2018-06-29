@@ -8,17 +8,20 @@ function sliceAndSort(arr) {
     let sliceStart = arr.findIndex(node => !util.isSeparator(node));
     if (sliceStart < 0) return [];
 
-    const sorted = [], sortSlice = (start, end) => {
-        if (start < end) sorted.push({
-            start: arr[start].index,
-            items: arr.slice(start, end).sort(sortConf.func)
-        });
+    const sorted = [];
+    const sortSlice = (start, end) => {
+        if (start < end) {
+            sorted.push({
+                start: arr[start].index,
+                items: arr.slice(start, end).sort(sortConf.func),
+            });
+        }
     };
 
-    const len = arr.length;
-    for (let i = sliceStart + 1; i < len; i++) {
-        const node = arr[i];
-        const gap = node.index - arr[i - 1].index - 1;
+    const {length: len} = arr;
+    for (let i = sliceStart + 1; i < len; i += 1) {
+        const {[i - 1]: prev, [i]: node} = arr;
+        const gap = node.index - prev.index - 1;
 
         if (util.isSeparator(node)) {
             // Firefox 57+
@@ -39,6 +42,42 @@ function sliceAndSort(arr) {
     return sorted;
 }
 
+async function sortNodeInternal(node) {
+    const subtrees = [];
+
+    con.log("Sorting %s: %o", node.id, node.title);
+
+    for (const {start, items} of sliceAndSort(node.children)) {
+        let errors = 0;
+        let moved = 0;
+
+        for (const [i, n] of items.entries()) {
+            const index = start + i - errors;
+
+            if (index !== n.index + moved) {
+                try {
+                    await browser.bookmarks.move(n.id, {index});
+                    moved += 1;
+                } catch (e) {
+                    con.log("Failed to move %o: %o", n, e);
+                    errors += 1;
+                }
+            }
+
+            if (n.children) subtrees.push(n);
+        }
+
+        if (moved || errors) {
+            con.log(
+                "Sorted \"%s\", slice %d..%d, %d items moved, %d items failed",
+                node.title || node.id, start, start + items.length, moved, errors,
+            );
+        }
+    }
+
+    return subtrees;
+}
+
 async function sortNode(node, options = {}) {
     const {recurse = false} = options;
 
@@ -52,46 +91,19 @@ async function sortNode(node, options = {}) {
         return;
     }
 
-    let promise;
-    while (promise = await sortLock.wait(node.id)) {
+    while (await sortLock.wait(node.id)) {
         // Some other task preempted us; if we're not recursive
         // assume we're redundant and bail out early
         if (!recurse) return;
     }
 
     await sortLock.run(node.id, async () => {
-        const subtrees = [];
-
-        con.log("Sorting %s: %o", node.id, node.title);
-
-        for (const {start, items} of sliceAndSort(node.children)) {
-            let moved = 0, errors = 0;
-
-            for (const [i, n] of items.entries()) {
-                const index = start + i - errors;
-
-                if (index !== n.index + moved) try {
-                    await browser.bookmarks.move(n.id, { index });
-                    moved++;
-                } catch (e) {
-                    con.log("Failed to move %o: %o", n, e);
-                    errors++;
-                }
-
-                if (n.children) subtrees.push(n);
-            }
-
-            if (moved || errors) {
-                con.log("Sorted \"%s\", slice %d..%d, %d items moved, %d items failed",
-                    node.title || node.id, start, start + items.length, moved, errors);
-            }
-        }
-
+        const subtrees = await sortNodeInternal(node);
         if (recurse) await Promise.all(subtrees.map(n => sortNode(n, options)));
     });
 }
 
-async function autoSort(node, options={}) {
+async function autoSort(node, options = {}) {
     if (!sortConf.conf.autosort) return;
 
     con.log("Autosorting %s", node.id);
@@ -109,7 +121,7 @@ sortConf.onUpdate.add(async () => {
     bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
     await util.timedRun(async () => {
         const node = await bookmarksTree.getRoot();
-        await autoSort(node, { recurse: true });
+        await autoSort(node, {recurse: true});
     });
 });
 
@@ -120,7 +132,7 @@ util.handleMessages({
         } else {
             await util.timedRun(async () => {
                 const node = await bookmarksTree.getRoot();
-                await sortNode(node, { recurse: true });
+                await sortNode(node, {recurse: true});
             });
         }
     },
@@ -128,5 +140,5 @@ util.handleMessages({
     popupOpened() {
         sortLock.notify();
         return sortConf.conf;
-    }
+    },
 });

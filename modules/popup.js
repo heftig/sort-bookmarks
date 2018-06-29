@@ -16,7 +16,7 @@ document.querySelector("form").addEventListener("submit", e => {
 util.handleMessages({
     sortInProgress(value) {
         submitButton.disabled = value;
-    }
+    },
 });
 
 (async () => {
@@ -25,14 +25,14 @@ util.handleMessages({
 
     for (const [key, value] of Object.entries(conf)) {
         const elems = document.querySelectorAll(`[name="${key}"]`);
-        if (elems.length == 0) {
+        if (elems.length === 0) {
             con.warn("No elements for %o", key);
             continue;
         }
 
         for (const elem of elems) {
             if ("checked" in elem) {
-                elem.checked = (elem.value == value);
+                elem.checked = elem.value === value;
             } else {
                 elem.value = value;
             }

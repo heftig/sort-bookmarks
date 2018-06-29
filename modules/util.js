@@ -1,6 +1,6 @@
-import con, { debugMode } from "./con.js";
+import con, {debugMode} from "./con.js";
 
-export function isFolder({ type, url }) {
+export function isFolder({type, url}) {
     // "type" property added in Firefox 57
     switch (type) {
         case "folder":
@@ -12,7 +12,7 @@ export function isFolder({ type, url }) {
     }
 }
 
-export function isSeparator({ type }) {
+export function isSeparator({type}) {
     return type === "separator";
 }
 
@@ -26,14 +26,14 @@ export async function timedRun(func) {
 }
 
 export function sendMessage(type, value = undefined) {
-    return browser.runtime.sendMessage({ type, value });
+    return browser.runtime.sendMessage({type, value});
 }
 
 export function handleMessages(handler) {
-    browser.runtime.onMessage.addListener(async ({ type, value }, { url }) => {
+    browser.runtime.onMessage.addListener(async ({type, value}, {url}) => {
         con.log("Received message %s(%o) from %s", type, value, url);
 
-        const func = handler[type];
-        if (func) return func(value);
+        const {[type]: func} = handler;
+        return func ? func(value) : undefined;
     });
 }

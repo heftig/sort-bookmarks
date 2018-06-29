@@ -1,3 +1,6 @@
+lint:
+	eslint --fix .
+
 scour:
 	for i in icons/*.svg; do \
 	    scour --remove-descriptive-elements --no-renderer-workaround --enable-id-stripping \

@@ -7,7 +7,7 @@ const sortLock = {
     async notify() {
         try {
             await util.sendMessage("sortInProgress", this.sorts.size > 0);
-        } catch (e) {
+        } catch (_e) {
             // FIXME: Ignore; popup frame might not exist
         }
     },
@@ -26,22 +26,22 @@ const sortLock = {
     },
 
     async run(id, asyncFunc) {
-        if (this.sorts.has(id)) throw `Already sorting ${id}`;
+        if (this.sorts.has(id)) throw new Error(`Already sorting ${id}`);
 
         // XXX: Safety valve
-        if (this.sorts.size >= 10000) throw "Too many concurrent sorts";
+        if (this.sorts.size >= 10000) throw new Error("Too many concurrent sorts");
 
         const promise = asyncFunc();
         this.sorts.set(id, promise);
 
         try {
-            if (this.sorts.size == 1) this.notify();
+            if (this.sorts.size === 1) this.notify();
             await promise;
         } finally {
             this.sorts.delete(id);
-            if (this.sorts.size == 0) this.notify();
+            if (this.sorts.size === 0) this.notify();
         }
-    }
+    },
 };
 
 export default sortLock;
