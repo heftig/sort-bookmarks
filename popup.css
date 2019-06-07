@@ -14,7 +14,7 @@ fieldset {
     font-weight: bold;
 }
 
-#reset-form {
+.node-specific {
     display: none;
 }
 

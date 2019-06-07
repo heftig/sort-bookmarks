@@ -34,8 +34,9 @@ handle({
         const context = document.getElementById("context");
         context.textContent = `Sorting "${node.title || node.id}"`;
 
-        const resetForm = document.getElementById("reset-form");
-        resetForm.style.display = "block";
+        for (const elem of document.getElementsByClassName("node-specific")) {
+            elem.style.display = "block";
+        }
 
         savedNode = node;
     }
