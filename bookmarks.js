@@ -1,5 +1,4 @@
 import con from "/console.js";
-import {isSortable} from "/util.js";
 
 const {bookmarks} = browser;
 
@@ -14,10 +13,10 @@ export async function getNode(id) {
     return node;
 }
 
-export async function findSortable(id) {
+export async function findAncestor(id, predicate) {
     while (id) {
         const [node] = await bookmarks.get(id);
-        if (isSortable(node)) return node;
+        if (predicate(node)) return node;
         ({parentId: id} = node);
     }
     return undefined;

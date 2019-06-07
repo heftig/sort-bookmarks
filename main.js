@@ -140,7 +140,7 @@ handle({
 
             if (!stamp || Date.now() - stamp < 5000) {
                 const {bookmarkId} = info;
-                node = await bookmarks.findSortable(bookmarkId);
+                node = await bookmarks.findAncestor(bookmarkId, util.isSortable);
             } else {
                 con.warn("Menu context timeout!");
             }
