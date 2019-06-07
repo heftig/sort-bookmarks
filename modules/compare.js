@@ -18,12 +18,8 @@ export default function makeCompareFunction(spec) {
     // Be stable as the base case
     let func = byIndex;
 
-    // Always sort by title, as it's not optional and e.g. folders have no URL
-    if (spec.by !== "title") {
-        func = compose(byTitle, func);
-    }
-
     let {[spec.by]: byFunc} = {
+        nothing:      undefined,
         title:        byTitle,
         url:          byURL,
         "date-added": byDateAdded,
