@@ -141,8 +141,11 @@ bookmarksTree.onChanged.add(async id => {
 });
 
 sortConf.onUpdate.add(async () => {
-    bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
     await autoSort(undefined);
+});
+
+sortConf.autoSorts.onUpdate.add(count => {
+    bookmarksTree.trackingEnabled = count > 0;
 });
 
 util.handleMessages({

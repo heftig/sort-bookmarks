@@ -7,6 +7,25 @@ const sortConf = {
     func:     makeCompareFunction({}),
     onUpdate: new Set(),
 
+    autoSorts: {
+        count:    0,
+        onUpdate: new Set(),
+
+        update(oldValue, newValue) {
+            if (!oldValue && newValue) {
+                this.count += 1;
+            } else if (oldValue && !newValue) {
+                this.count -= 1;
+            } else {
+                return;
+            }
+
+            const {count, onUpdate} = this;
+            con.log("AutoSorts count now %o", count);
+            for (const func of onUpdate) func(count);
+        },
+    },
+
     set(conf, options = {}) {
         if (!conf) throw new Error("Invalid conf");
         const {toStorage = true, update = true} = options;
@@ -15,6 +34,7 @@ const sortConf = {
         if (util.objectsEqual(oldConf, conf)) return false;
 
         con.log("Setting conf to %o", conf);
+        this.autoSorts.update(oldConf.autosort, conf.autosort);
         this.conf = conf;
         this.func = makeCompareFunction(conf);
 
