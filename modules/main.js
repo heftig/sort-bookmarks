@@ -46,7 +46,7 @@ async function sortNodeInternal(node) {
     const {id, title, children} = node;
     con.log("Sorting %s: %o", id, title);
 
-    const {func} = sortConf;
+    const func = sortConf.getfunc(node);
     const subtrees = [];
 
     for (const {start, items} of sliceAndSort(children, func)) {
@@ -127,7 +127,7 @@ async function startSort(id) {
 }
 
 async function autoSort(id) {
-    const {conf: {autosort}} = sortConf;
+    const {autosort} = sortConf.get(id);
     if (autosort) {
         con.log("Autosorting %o", id || "the root");
         await startSort(id);
@@ -140,8 +140,8 @@ bookmarksTree.onChanged.add(async id => {
     await autoSort(id);
 });
 
-sortConf.onUpdate.add(async () => {
-    await autoSort(undefined);
+sortConf.onUpdate.add(async id => {
+    await autoSort(id);
 });
 
 sortConf.autoSorts.onUpdate.add(count => {
@@ -150,12 +150,12 @@ sortConf.autoSorts.onUpdate.add(count => {
 
 util.handleMessages({
     async sort(conf) {
-        sortConf.set(conf, {update: false});
+        sortConf.set(undefined, conf, {update: false});
         await startSort(undefined);
     },
 
     popupOpened() {
         sortLock.notify();
-        return sortConf.conf;
+        return sortConf.get(undefined);
     },
 });
