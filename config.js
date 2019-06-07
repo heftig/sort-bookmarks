@@ -97,12 +97,8 @@ export async function load() {
         }
 
         const id = key.slice(8);
-        if (await exists(id)) {
-            set(value, {id, toStorage: false, update: false});
-        } else {
-            con.log("Nonexistent ID '%s'", id);
-            await storage.sync.remove(id);
-        }
+        if (await exists(id)) set(value, {id, toStorage: false, update: false});
+        else await storage.sync.remove(id);
     }));
 
     if (conf) {
