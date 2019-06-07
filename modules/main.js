@@ -43,12 +43,13 @@ function sliceAndSort(arr, func) {
 }
 
 async function sortNodeInternal(node) {
-    const subtrees = [];
-
-    con.log("Sorting %s: %o", node.id, node.title);
+    const {id, title, children} = node;
+    con.log("Sorting %s: %o", id, title);
 
     const {func} = sortConf;
-    for (const {start, items} of sliceAndSort(node.children, func)) {
+    const subtrees = [];
+
+    for (const {start, items} of sliceAndSort(children, func)) {
         let errors = 0;
         let moved = 0;
 
@@ -71,7 +72,7 @@ async function sortNodeInternal(node) {
         if (moved || errors) {
             con.log(
                 "Sorted \"%s\", slice %d..%d, %d items moved, %d items failed",
-                node.title || node.id, start, start + items.length, moved, errors,
+                title || id, start, start + items.length, moved, errors,
             );
         }
     }
