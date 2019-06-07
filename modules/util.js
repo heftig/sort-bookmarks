@@ -49,3 +49,18 @@ export function objectsEqual(obj1, obj2) {
 
     return true;
 }
+
+export function createMenuItem(properties) {
+    return new Promise((resolve, reject) => {
+        const id = browser.menus.create(properties, () => {
+            const {runtime: {lastError: error}} = browser;
+            if (error) {
+                con.log("Failed to create menu item (%o): %o", properties, error);
+                reject(error);
+            } else {
+                con.log("Created menu item (%o): %o", properties, id);
+                resolve(id);
+            }
+        });
+    });
+}

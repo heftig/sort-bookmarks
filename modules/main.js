@@ -148,14 +148,50 @@ sortConf.autoSorts.onUpdate.add(count => {
     bookmarksTree.trackingEnabled = count > 0;
 });
 
+let menuContext;
+
 util.handleMessages({
     async sort({node, conf}) {
         sortConf.set(node, conf, {update: false});
         await startSort(node && node.id);
     },
 
-    popupOpened() {
+    async popupOpened() {
+        let node;
+
+        if (menuContext) {
+            const {info, stamp} = menuContext;
+            menuContext = undefined;
+
+            if (!stamp || Date.now() - stamp < 5000) {
+                let {bookmarkId} = info;
+                while (bookmarkId) {
+                    const [bookmark] = await browser.bookmarks.get(bookmarkId);
+
+                    if (isSortable(bookmark)) {
+                        node = bookmark;
+                        break;
+                    }
+
+                    ({parentId: bookmarkId} = bookmark);
+                }
+            } else {
+                con.log("Menu context timeout!");
+            }
+        }
+
         sortLock.notify();
-        return {node: undefined, conf: sortConf.get(undefined)};
+        return {node, conf: sortConf.get(node)};
+    },
+});
+
+util.createMenuItem({
+    contexts: ["bookmark"],
+    title:    "Sort this folder…",
+
+    onclick(info, tab) {
+        con.log("Opening popup for %o, %o", info, tab);
+        menuContext = {info, stamp: Date.now()};
+        browser.browserAction.openPopup();
     },
 });

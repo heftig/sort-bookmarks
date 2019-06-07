@@ -18,6 +18,7 @@
 
     "permissions": [
         "bookmarks",
+        "menus",
         "storage"
     ],
 
