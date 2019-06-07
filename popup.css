@@ -9,3 +9,17 @@ fieldset {
 #reversed {
     margin-top: 1em;
 }
+
+@media (prefers-color-scheme: light) {
+    body {
+        color: black;
+        background-color: white;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        color: white;
+        background-color: black;
+    }
+}
