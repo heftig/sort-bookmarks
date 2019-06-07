@@ -10,6 +10,14 @@ fieldset {
     margin-top: 1em;
 }
 
+#context {
+    font-weight: bold;
+}
+
+#reset-form {
+    display: none;
+}
+
 @media (prefers-color-scheme: light) {
     body {
         color: black;

@@ -2,8 +2,9 @@ import con from "./con.js";
 import * as util from "./util.js";
 
 const submitButtons = document.querySelectorAll("button");
+let savedNode;
 
-document.querySelector("form").addEventListener("submit", e => {
+document.getElementById("sort-form").addEventListener("submit", e => {
     e.preventDefault();
 
     const data = new FormData(e.target);
@@ -11,7 +12,12 @@ document.querySelector("form").addEventListener("submit", e => {
     for (const [key, value] of data.entries()) conf[key] = value;
 
     for (const b of submitButtons) b.disabled = true;
-    util.sendMessage("sort", conf);
+    util.sendMessage("sort", {node: savedNode, conf});
+});
+
+document.getElementById("reset-form").addEventListener("submit", e => {
+    e.preventDefault();
+    util.sendMessage("sort", {node: savedNode});
 });
 
 util.handleMessages({
@@ -21,8 +27,18 @@ util.handleMessages({
 });
 
 (async () => {
-    const conf = await util.sendMessage("popupOpened");
-    con.log("Loading conf: %o", conf);
+    const {node, conf} = await util.sendMessage("popupOpened");
+    con.log("Loading conf %o for node %o", conf, node);
+
+    if (node) {
+        const context = document.getElementById("context");
+        context.textContent = `Sorting "${node.title || node.id}"`;
+
+        const resetForm = document.getElementById("reset-form");
+        resetForm.style.display = "block";
+
+        savedNode = node;
+    }
 
     for (const [key, value] of Object.entries(conf)) {
         const elems = document.querySelectorAll(`[name="${key}"]`);

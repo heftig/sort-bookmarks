@@ -149,13 +149,13 @@ sortConf.autoSorts.onUpdate.add(count => {
 });
 
 util.handleMessages({
-    async sort(conf) {
-        sortConf.set(undefined, conf, {update: false});
-        await startSort(undefined);
+    async sort({node, conf}) {
+        sortConf.set(node, conf, {update: false});
+        await startSort(node && node.id);
     },
 
     popupOpened() {
         sortLock.notify();
-        return sortConf.get(undefined);
+        return {node: undefined, conf: sortConf.get(undefined)};
     },
 });

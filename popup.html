@@ -7,7 +7,8 @@
     <script src="modules/popup.js" type="module" defer></script>
 </head>
 <body>
-    <form>
+    <p id="context">Sorting all bookmarks</p>
+    <form id="sort-form">
         <p>
             <label for="folders">Folders</label>
             <select id="folders" name="folders">
@@ -44,6 +45,11 @@
             <label for="autosort">Always keep sorted</label>
         </p>
         <button type="submit">Confirm (sort)</button>
+    </form>
+    <form id="reset-form">
+        <p>
+            <button type="submit">Reset to global</button>
+        </p>
     </form>
 </body>
 </html>
