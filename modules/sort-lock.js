@@ -22,7 +22,7 @@ const sortLock = {
             promise = this.sorts.get(id);
         }
 
-        return promise;
+        return !!promise;
     },
 
     async run(id, asyncFunc) {
