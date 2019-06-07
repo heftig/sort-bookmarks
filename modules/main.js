@@ -114,35 +114,41 @@ async function sortNode(node, options = {}) {
     });
 }
 
-async function autoSort(node, options = {}) {
-    if (!sortConf.conf.autosort) return;
+async function startSort(id) {
+    await util.timedRun(async () => {
+        if (id) {
+            const node = await bookmarksTree.getNode(id);
+            await sortNode(node);
+        } else {
+            const node = await bookmarksTree.getRoot();
+            await sortNode(node, {recurse: true});
+        }
+    });
+}
 
-    con.log("Autosorting %s", node.id);
-    await sortNode(node, options);
+async function autoSort(id) {
+    const {conf: {autosort}} = sortConf;
+    if (autosort) {
+        con.log("Autosorting %o", id || "the root");
+        await startSort(id);
+    } else {
+        con.log("Not autosorting %o", id);
+    }
 }
 
 bookmarksTree.onChanged.add(async id => {
-    await util.timedRun(async () => {
-        const node = await bookmarksTree.getNode(id);
-        await autoSort(node);
-    });
+    await autoSort(id);
 });
 
 sortConf.onUpdate.add(async () => {
     bookmarksTree.trackingEnabled = !!sortConf.conf.autosort;
-    await util.timedRun(async () => {
-        const node = await bookmarksTree.getRoot();
-        await autoSort(node, {recurse: true});
-    });
+    await autoSort(undefined);
 });
 
 util.handleMessages({
     async sort(conf) {
         sortConf.set(conf, {update: false});
-        await util.timedRun(async () => {
-            const node = await bookmarksTree.getRoot();
-            await sortNode(node, {recurse: true});
-        });
+        await startSort(undefined);
     },
 
     popupOpened() {
