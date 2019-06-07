@@ -60,7 +60,7 @@ async function sortNodeInternal(node) {
                     await bookmarks.move(n.id, {index});
                     moved += 1;
                 } catch (e) {
-                    con.log("Failed to move %o: %o", n, e);
+                    con.error("Failed to move:", n, e);
                     errors += 1;
                 }
             }
@@ -142,7 +142,7 @@ handle({
                 const {bookmarkId} = info;
                 node = await bookmarks.findSortable(bookmarkId);
             } else {
-                con.log("Menu context timeout!");
+                con.warn("Menu context timeout!");
             }
         }
 
@@ -156,7 +156,7 @@ util.createMenuItem({
     title:    "Sort this folder…",
 
     onclick(info, tab) {
-        con.log("Opening popup for %o, %o", info, tab);
+        con.log("Opening popup:", info, tab);
         menuContext = {info, stamp: Date.now()};
         browserAction.openPopup();
     },

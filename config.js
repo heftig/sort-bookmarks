@@ -23,7 +23,7 @@ function nodeId(id) {
             break;
     }
 
-    con.log("Invalid ID: %o", id);
+    con.error("Invalid ID:", id);
     throw new Error("Invalid ID");
 }
 
@@ -66,7 +66,7 @@ export function set(conf, options = {}) {
     const oldConf = confs.get(id) || {};
     if (objectsEqual(oldConf, conf)) return false;
 
-    con.log("Setting conf for '%s' to %o", id, conf);
+    con.log("Setting conf for '%s':", id, conf);
     confs.set(id, conf);
     funcs.set(id, makeCompareFunction(conf));
     if (conf.autosort) autos.add(id);
@@ -83,7 +83,7 @@ storage.onChanged.addListener((changes, area) => {
     if (area !== "sync") return;
     for (const [key, {newValue}] of Object.entries(changes)) {
         if (key.startsWith("sortConf")) set(newValue, {id: key.slice(8), toStorage: false});
-        else con.log("Unknown storage key '%s'", key);
+        else con.warn("Unknown storage key:", key);
     }
 });
 
@@ -92,7 +92,7 @@ export async function load() {
 
     await Promise.all(Object.entries(rest).map(async ([key, value]) => {
         if (!key.startsWith("sortConf")) {
-            con.log("Unknown storage key '%s'", key);
+            con.warn("Unknown storage key:", key);
             return;
         }
 

@@ -16,7 +16,7 @@ export async function wait(id) {
     let promise = sorts.get(id);
 
     if (promise) {
-        con.log("Waiting on %o: %o", id, promise);
+        con.log("Waiting on:", id, promise);
         await promise;
         promise = sorts.get(id);
     }

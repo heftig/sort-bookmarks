@@ -47,7 +47,7 @@ const bookmarksListeners = new Map([
     [
         bookmarks.onCreated,
         (_id, node) => {
-            con.log("Node created: %o", node);
+            con.log("Node created:", node);
             emitChanged(node.parentId);
         },
     ],
@@ -55,7 +55,7 @@ const bookmarksListeners = new Map([
     [
         bookmarks.onRemoved,
         (_id, node) => {
-            con.log("Node removed: %o", node);
+            con.log("Node removed:", node);
             emitChanged(node.parentId);
         },
     ],
@@ -66,7 +66,7 @@ const bookmarksListeners = new Map([
             const [node] = await bookmarks.get(id);
             if (!node) return;
 
-            con.log("Node changed: %o", node);
+            con.log("Node changed:", node);
             emitChanged(node.parentId);
         },
     ],
@@ -79,7 +79,7 @@ const bookmarksListeners = new Map([
             // so reacting to moves within a folder may lead to infinite looping.
             if (info.parentId === info.oldParentId) return;
 
-            con.log("Node moved: %o", id);
+            con.log("Node moved:", id);
             emitChanged(info.parentId);
         },
     ],

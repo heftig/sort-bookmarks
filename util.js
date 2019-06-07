@@ -22,12 +22,12 @@ export function isSortable(node) {
     if (!node) return false;
 
     if (node.unmodifiable) {
-        con.log("Unmodifiable node: %o", node);
+        con.log("Unmodifiable node:", node);
         return false;
     }
 
     if (!isFolder(node)) {
-        con.log("Not a folder: %o", node);
+        con.log("Not a folder:", node);
         return false;
     }
 
@@ -60,10 +60,10 @@ export function createMenuItem(properties) {
         const id = menus.create(properties, () => {
             const {lastError: error} = runtime;
             if (error) {
-                con.log("Failed to create menu item (%o): %o", properties, error);
+                con.error("Failed to create menu item (%o):", properties, error);
                 reject(error);
             } else {
-                con.log("Created menu item (%o): %o", properties, id);
+                con.log("Created menu item (%o):", properties, id);
                 resolve(id);
             }
         });

@@ -28,7 +28,7 @@ handle({
 
 (async () => {
     const {node, conf} = await send("popupOpened");
-    con.log("Loading conf %o for node %o", conf, node);
+    con.log("Loading:", conf, node);
 
     if (node) {
         const context = document.getElementById("context");
@@ -43,7 +43,7 @@ handle({
     for (const [key, value] of Object.entries(conf)) {
         const elems = document.querySelectorAll(`[name="${key}"]`);
         if (elems.length === 0) {
-            con.warn("No elements for %o", key);
+            con.warn("No matching elements:", key);
             continue;
         }
 
