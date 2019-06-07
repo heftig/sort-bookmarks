@@ -138,14 +138,11 @@ sortConf.onUpdate.add(async () => {
 
 util.handleMessages({
     async sort(conf) {
-        if (sortConf.set(conf) && sortConf.conf.autosort) {
-            // Configuration change will trigger autosort
-        } else {
-            await util.timedRun(async () => {
-                const node = await bookmarksTree.getRoot();
-                await sortNode(node, {recurse: true});
-            });
-        }
+        sortConf.set(conf, {update: false});
+        await util.timedRun(async () => {
+            const node = await bookmarksTree.getRoot();
+            await sortNode(node, {recurse: true});
+        });
     },
 
     popupOpened() {

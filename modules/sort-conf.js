@@ -7,17 +7,19 @@ const sortConf = {
     func:     makeCompareFunction({}),
     onUpdate: new Set(),
 
-    set(conf) {
+    set(conf, options = {}) {
         if (!conf) throw new Error("Invalid conf");
-        if (util.objectsEqual(this.conf, conf)) return false;
+        const {toStorage = true, update = true} = options;
+
+        const {conf: oldConf, onUpdate} = this;
+        if (util.objectsEqual(oldConf, conf)) return false;
 
         con.log("Setting conf to %o", conf);
-
         this.conf = conf;
         this.func = makeCompareFunction(conf);
 
-        browser.storage.sync.set({sortConf: conf});
-        for (const func of this.onUpdate) func();
+        if (toStorage) browser.storage.sync.set({sortConf: conf});
+        if (update) for (const func of onUpdate) func();
         return true;
     },
 };
@@ -25,7 +27,7 @@ const sortConf = {
 browser.storage.onChanged.addListener((changes, area) => {
     con.log("Storage %s changed: %o", area, changes);
     if (area === "sync" && changes.sortConf && changes.sortConf.newValue) {
-        sortConf.set(changes.sortConf.newValue);
+        sortConf.set(changes.sortConf.newValue, {toStorage: false});
     }
 });
 
