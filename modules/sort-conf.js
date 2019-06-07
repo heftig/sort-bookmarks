@@ -30,23 +30,17 @@ browser.storage.onChanged.addListener((changes, area) => {
 });
 
 (async () => {
-    let {sortConf: conf} = await browser.storage.sync.get(["sortConf"]);
+    const {sortConf: conf, ...rest} = await browser.storage.sync.get();
 
-    if (!conf) {
+    if (conf) {
+        sortConf.set(conf);
+    } else {
         // Migrate 0.2 settings
         const keys = ["by", "folders", "reversed"];
         const storKey = k => `popupForm-${k}`;
-        const values = await browser.storage.sync.get(keys.map(storKey));
-
-        conf = {};
-
-        // eslint-disable-next-line prefer-destructuring
-        for (const k of keys) conf[k] = values[storKey(k)];
-
+        sortConf.set(Object.fromEntries(keys.map(k => [k, rest[storKey(k)]])));
         await browser.storage.sync.remove(keys.map(storKey));
     }
-
-    sortConf.set(conf);
 })();
 
 export default sortConf;
