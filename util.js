@@ -55,6 +55,10 @@ export function objectsEqual(obj1, obj2) {
     return true;
 }
 
+export function merge(...objs) {
+    return objs.reduce(Object.assign, {});
+}
+
 export function createMenuItem(properties) {
     return new Promise((resolve, reject) => {
         const id = menus.create(properties, () => {
