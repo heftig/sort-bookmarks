@@ -37,3 +37,15 @@ export function handleMessages(handler) {
         return func ? func(value) : undefined;
     });
 }
+
+export function objectsEqual(obj1, obj2) {
+    if (obj1 === obj2) return true;
+
+    const names1 = Object.getOwnPropertyNames(obj1);
+    const names2 = Object.getOwnPropertyNames(obj2);
+
+    if (names1.length !== names2.length) return false;
+    for (const name of names1) if (obj1[name] !== obj2[name]) return false;
+
+    return true;
+}

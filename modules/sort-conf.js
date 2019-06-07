@@ -1,26 +1,15 @@
 import con from "./con.js";
 import makeCompareFunction from "./compare.js";
+import * as util from "./util.js";
 
 const sortConf = {
     conf:     {},
     func:     makeCompareFunction({}),
     onUpdate: new Set(),
 
-    has(conf) {
-        if (this.conf === conf) return true;
-
-        const names1 = Object.getOwnPropertyNames(this.conf);
-        const names2 = Object.getOwnPropertyNames(conf);
-
-        if (names1.length !== names2.length) return false;
-        for (const name of names1) if (this.conf[name] !== conf[name]) return false;
-
-        return true;
-    },
-
     set(conf) {
         if (!conf) throw new Error("Invalid conf");
-        if (this.has(conf)) return false;
+        if (util.objectsEqual(this.conf, conf)) return false;
 
         con.log("Setting conf to %o", conf);
 
