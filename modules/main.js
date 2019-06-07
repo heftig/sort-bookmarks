@@ -80,18 +80,26 @@ async function sortNodeInternal(node) {
     return subtrees;
 }
 
-async function sortNode(node, options = {}) {
-    const {recurse = false} = options;
+function isSortable(node) {
+    if (!node) return false;
 
     if (node.unmodifiable) {
         con.log("Unmodifiable node: %o", node);
-        return;
+        return false;
     }
 
     if (!util.isFolder(node)) {
         con.log("Not a folder: %o", node);
-        return;
+        return false;
     }
+
+    return true;
+}
+
+async function sortNode(node, options = {}) {
+    const {recurse = false} = options;
+
+    if (!isSortable(node)) return;
 
     while (await sortLock.wait(node.id)) {
         // Some other task preempted us; if we're not recursive
