@@ -1,7 +1,8 @@
 import con from "./con.js";
 import * as util from "./util.js";
 
-const submitButton = document.querySelector("button");
+const submitButtons = document.querySelectorAll("button");
+
 document.querySelector("form").addEventListener("submit", e => {
     e.preventDefault();
 
@@ -9,13 +10,13 @@ document.querySelector("form").addEventListener("submit", e => {
     const conf = {};
     for (const [key, value] of data.entries()) conf[key] = value;
 
-    submitButton.disabled = true;
+    for (const b of submitButtons) b.disabled = true;
     util.sendMessage("sort", conf);
 });
 
 util.handleMessages({
     sortInProgress(value) {
-        submitButton.disabled = value;
+        for (const b of submitButtons) b.disabled = value;
     },
 });
 
