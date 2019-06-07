@@ -100,14 +100,15 @@ async function sortNode(node, options = {}) {
     const {recurse = false} = options;
 
     if (!isSortable(node)) return;
+    const {id} = node;
 
-    while (await sortLock.wait(node.id)) {
+    while (await sortLock.wait(id)) {
         // Some other task preempted us; if we're not recursive
         // assume we're redundant and bail out early
         if (!recurse) return;
     }
 
-    await sortLock.run(node.id, async () => {
+    await sortLock.run(id, async () => {
         const subtrees = await sortNodeInternal(node);
         if (recurse) await Promise.all(subtrees.map(n => sortNode(n, options)));
     });
