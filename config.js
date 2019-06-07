@@ -31,12 +31,16 @@ const confs = new Map();
 const funcs = new Map();
 const autos = new Set();
 
-export function get(id) {
-    return confs.get(nodeId(id)) || confs.get("");
+function getmap(map, id, fallback) {
+    return map.get(nodeId(id)) || map.get(nodeId(fallback));
 }
 
-export function getfunc(id) {
-    return funcs.get(nodeId(id)) || funcs.get("");
+export function get(id, fallback = undefined) {
+    return getmap(confs, id, fallback);
+}
+
+export function getfunc(id, fallback = undefined) {
+    return getmap(funcs, id, fallback);
 }
 
 export function remove(options = {}) {
