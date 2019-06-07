@@ -4,7 +4,7 @@ import sortConf from "./sort-conf.js";
 import sortLock from "./sort-lock.js";
 import * as util from "./util.js";
 
-function sliceAndSort(arr) {
+function sliceAndSort(arr, func) {
     let sliceStart = arr.findIndex(node => !util.isSeparator(node));
     if (sliceStart < 0) return [];
 
@@ -13,7 +13,7 @@ function sliceAndSort(arr) {
         if (start < end) {
             sorted.push({
                 start: arr[start].index,
-                items: arr.slice(start, end).sort(sortConf.func),
+                items: arr.slice(start, end).sort(func),
             });
         }
     };
@@ -47,7 +47,8 @@ async function sortNodeInternal(node) {
 
     con.log("Sorting %s: %o", node.id, node.title);
 
-    for (const {start, items} of sliceAndSort(node.children)) {
+    const {func} = sortConf;
+    for (const {start, items} of sliceAndSort(node.children, func)) {
         let errors = 0;
         let moved = 0;
 
