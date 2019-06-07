@@ -1,4 +1,4 @@
-import * as util from "./util.js";
+import {isFolder} from "/util.js";
 
 const stringCompare = (a, b) => a.localeCompare(b, undefined, {numeric: true});
 
@@ -11,7 +11,7 @@ const byTitle = (a, b) => stringCompare(a.title, b.title);
 const byURL = (a, b) => a.url && b.url ? stringCompare(a.url, b.url) : 0;
 const byDateAdded = (a, b) => a.dateAdded && b.dateAdded ? a.dateAdded - b.dateAdded : 0;
 
-const foldersFirst = (a, b) => util.isFolder(b) - util.isFolder(a);
+const foldersFirst = (a, b) => isFolder(b) - isFolder(a);
 const foldersLast = reverse(foldersFirst);
 
 export default function makeCompareFunction(spec) {

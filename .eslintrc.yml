@@ -233,6 +233,7 @@ rules:
   semi: error
   semi-spacing: error
   semi-style: error
+  sort-imports: error
   space-before-blocks: error
   space-before-function-paren:
     - error

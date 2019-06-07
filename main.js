@@ -1,8 +1,11 @@
-import con from "./con.js";
-import bookmarksTree from "./bookmarks-tree.js";
-import sortConf from "./sort-conf.js";
-import sortLock from "./sort-lock.js";
-import * as util from "./util.js";
+import * as bookmarks from "/bookmarks.js";
+import * as conf from "/config.js";
+import * as lock from "/lock.js";
+import * as util from "/util.js";
+import con, {init as initCon} from "/console.js";
+import {handle} from "/message.js";
+
+const {browserAction} = browser;
 
 function sliceAndSort(arr, func) {
     let sliceStart = arr.findIndex(node => !util.isSeparator(node));
@@ -25,12 +28,10 @@ function sliceAndSort(arr, func) {
 
         if (util.isSeparator(node)) {
             // Firefox 57+
-            con.log("Found a separator at %d: %o", i, node);
             sortSlice(sliceStart, i);
             sliceStart = i + 1;
         } else if (gap !== 0) {
             // Pre-57, separators leave gaps
-            con.log("Found %d separators at %d", gap, i);
             sortSlice(sliceStart, i);
             sliceStart = i;
         }
@@ -44,9 +45,7 @@ function sliceAndSort(arr, func) {
 
 async function sortNodeInternal(node) {
     const {id, title, children} = node;
-    con.log("Sorting %s: %o", id, title);
-
-    const func = sortConf.getfunc(node);
+    const func = conf.getfunc(node);
     const subtrees = [];
 
     for (const {start, items} of sliceAndSort(children, func)) {
@@ -58,7 +57,7 @@ async function sortNodeInternal(node) {
 
             if (index !== n.index + moved) {
                 try {
-                    await browser.bookmarks.move(n.id, {index});
+                    await bookmarks.move(n.id, {index});
                     moved += 1;
                 } catch (e) {
                     con.log("Failed to move %o: %o", n, e);
@@ -80,35 +79,19 @@ async function sortNodeInternal(node) {
     return subtrees;
 }
 
-function isSortable(node) {
-    if (!node) return false;
-
-    if (node.unmodifiable) {
-        con.log("Unmodifiable node: %o", node);
-        return false;
-    }
-
-    if (!util.isFolder(node)) {
-        con.log("Not a folder: %o", node);
-        return false;
-    }
-
-    return true;
-}
-
 async function sortNode(node, options = {}) {
     const {recurse = false} = options;
 
-    if (!isSortable(node)) return;
+    if (!util.isSortable(node)) return;
     const {id} = node;
 
-    while (await sortLock.wait(id)) {
+    while (await lock.wait(id)) {
         // Some other task preempted us; if we're not recursive
         // assume we're redundant and bail out early
         if (!recurse) return;
     }
 
-    await sortLock.run(id, async () => {
+    await lock.run(id, async () => {
         const subtrees = await sortNodeInternal(node);
         if (recurse) await Promise.all(subtrees.map(n => sortNode(n, options)));
     });
@@ -117,43 +100,35 @@ async function sortNode(node, options = {}) {
 async function startSort(id) {
     await util.timedRun(async () => {
         if (id) {
-            const node = await bookmarksTree.getNode(id);
+            const node = await bookmarks.getNode(id);
             await sortNode(node);
         } else {
-            const node = await bookmarksTree.getRoot();
+            const node = await bookmarks.getAll();
             await sortNode(node, {recurse: true});
         }
     });
 }
 
 async function autoSort(id) {
-    const {autosort} = sortConf.get(id);
+    const {autosort} = conf.get(id);
     if (autosort) {
-        con.log("Autosorting %o", id || "the root");
+        con.log("Autosorting %s", id || "the root");
         await startSort(id);
     } else {
-        con.log("Not autosorting %o", id);
+        con.log("Not autosorting %s", id || "the root");
     }
 }
 
-bookmarksTree.onChanged.add(async id => {
-    await autoSort(id);
-});
-
-sortConf.onUpdate.add(async id => {
-    await autoSort(id);
-});
-
-sortConf.autoSorts.onUpdate.add(count => {
-    bookmarksTree.trackingEnabled = count > 0;
-});
+bookmarks.onChanged.add(autoSort);
+conf.onChanged.add(autoSort);
 
 let menuContext;
 
-util.handleMessages({
-    async sort({node, conf}) {
-        sortConf.set(node, conf, {update: false});
-        await startSort(node && node.id);
+handle({
+    async sort(options) {
+        const {conf: c, node: {id} = {}} = options;
+        conf.set(c, {id, update: false});
+        await startSort(id);
     },
 
     async popupOpened() {
@@ -164,24 +139,15 @@ util.handleMessages({
             menuContext = undefined;
 
             if (!stamp || Date.now() - stamp < 5000) {
-                let {bookmarkId} = info;
-                while (bookmarkId) {
-                    const [bookmark] = await browser.bookmarks.get(bookmarkId);
-
-                    if (isSortable(bookmark)) {
-                        node = bookmark;
-                        break;
-                    }
-
-                    ({parentId: bookmarkId} = bookmark);
-                }
+                const {bookmarkId} = info;
+                node = await bookmarks.findSortable(bookmarkId);
             } else {
                 con.log("Menu context timeout!");
             }
         }
 
-        sortLock.notify();
-        return {node, conf: sortConf.get(node)};
+        lock.notify();
+        return {conf: conf.get(node), node};
     },
 });
 
@@ -192,6 +158,11 @@ util.createMenuItem({
     onclick(info, tab) {
         con.log("Opening popup for %o, %o", info, tab);
         menuContext = {info, stamp: Date.now()};
-        browser.browserAction.openPopup();
+        browserAction.openPopup();
     },
 });
+
+(async () => {
+    await initCon();
+    await conf.load();
+})();
