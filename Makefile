@@ -9,5 +9,8 @@ scour:
 	    mv -f "$$i.scour" "$$i"; \
 	done
 
-xpi:
-	git archive --format zip -o sort-bookmarks-$(shell git describe --tags HEAD).xpi HEAD
+xpi: sort-bookmarks-$(shell git describe --tags HEAD).xpi
+sort-bookmarks-%.xpi:
+	git archive --format zip -o $@ $*
+
+.PHONY: lint scour xpi
