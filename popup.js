@@ -1,5 +1,5 @@
+import con, {init as initCon} from "/console.js";
 import {handle, send} from "/message.js";
-import con from "/console.js";
 
 const submitButtons = document.querySelectorAll("button");
 let savedNode;
@@ -27,6 +27,8 @@ handle({
 });
 
 (async () => {
+    await initCon();
+
     const {node, conf} = await send("popupOpened");
     con.log("Loading:", conf, node);
 
