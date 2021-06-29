@@ -29,7 +29,7 @@ handle({
 (async () => {
     await initCon();
 
-    const {node, conf} = await remote.popupOpened();
+    const {conf, node} = await remote.popupOpened();
     con.log("Loading:", conf, node);
 
     if (node) {

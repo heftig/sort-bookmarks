@@ -45,7 +45,7 @@ function sliceAndSort(arr, func) {
 
 async function sortNodeInternal(node) {
     const {id, title, children} = node;
-    const func = config.getfunc(node);
+    const func = config.getfunc(id);
     const subtrees = [];
 
     for (const {start, items} of sliceAndSort(children, func)) {
@@ -152,7 +152,7 @@ handle({
         }
 
         lock.notify();
-        return {conf: config.get(node), node};
+        return {node, conf: config.get(node && node.id)};
     },
 });
 
