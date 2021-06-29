@@ -1,5 +1,5 @@
 import con from "/console.js";
-import {send} from "/message.js";
+import {remote} from "/message.js";
 
 const LIMIT = 10000;
 
@@ -7,7 +7,7 @@ const sorts = new Map();
 
 export async function notify() {
     try {
-        await send("sortInProgress", sorts.size > 0);
+        await remote.sortInProgress(sorts.size > 0);
     } catch (_e) {
         // Ignore; popup frame might not exist
     }

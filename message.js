@@ -2,15 +2,17 @@ import con from "/console.js";
 
 const {runtime} = browser;
 
-export function send(type, value = undefined) {
-    return runtime.sendMessage({type, value});
-}
+export const remote = new Proxy({}, {
+    get(_target, property, _receiver) {
+        return (...args) => runtime.sendMessage({method: property, args});
+    },
+});
 
 export function handle(handler) {
-    runtime.onMessage.addListener(({type, value}, {url}) => {
-        con.log("Received message %s(%o) from %s", type, value, url);
+    runtime.onMessage.addListener(({method, args}, _sender) => {
+        con.log("Received %s%s", method, args.length ? ":" : "", ...args);
 
-        const {[type]: func} = handler;
-        return Promise.resolve(func ? func(value) : undefined);
+        const {[method]: func} = handler;
+        return Promise.resolve(func ? func(...args) : undefined);
     });
 }

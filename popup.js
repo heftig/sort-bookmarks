@@ -1,5 +1,5 @@
 import con, {init as initCon} from "/console.js";
-import {handle, send} from "/message.js";
+import {handle, remote} from "/message.js";
 
 const submitButtons = document.querySelectorAll("button");
 let savedNode = null;
@@ -12,12 +12,12 @@ document.getElementById("sort-form").addEventListener("submit", (e) => {
     for (const [key, value] of data.entries()) conf[key] = value;
 
     for (const b of submitButtons) b.disabled = true;
-    send("sort", {node: savedNode, conf});
+    remote.sort(savedNode, conf);
 });
 
 document.getElementById("reset-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    send("sort", {node: savedNode});
+    remote.sort(savedNode, null);
 });
 
 handle({
@@ -29,7 +29,7 @@ handle({
 (async () => {
     await initCon();
 
-    const {node, conf} = await send("popupOpened");
+    const {node, conf} = await remote.popupOpened();
     con.log("Loading:", conf, node);
 
     if (node) {
