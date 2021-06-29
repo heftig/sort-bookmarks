@@ -130,8 +130,7 @@ const CONTEXT_TIMEOUT = 5000;
 let menuContext = null;
 
 handle({
-    async sort(node, conf) {
-        const id = node ? node.id : null;
+    async sort(id, conf) {
         config.set(id, conf, {update: false});
         await startSort(id);
     },
