@@ -1,5 +1,5 @@
 import * as bookmarks from "/bookmarks.js";
-import * as conf from "/config.js";
+import * as config from "/config.js";
 import * as lock from "/lock.js";
 import * as util from "/util.js";
 import con, {init as initCon} from "/console.js";
@@ -45,7 +45,7 @@ function sliceAndSort(arr, func) {
 
 async function sortNodeInternal(node) {
     const {id, title, children} = node;
-    const func = conf.getfunc(node);
+    const func = config.getfunc(node);
     const subtrees = [];
 
     for (const {start, items} of sliceAndSort(children, func)) {
@@ -110,7 +110,7 @@ async function startSort(id) {
 }
 
 async function autoSort(id) {
-    const {autosort} = conf.get(id);
+    const {autosort} = config.get(id);
     if (autosort) {
         con.log("Autosorting %s", id || "the root");
         await startSort(id);
@@ -120,14 +120,14 @@ async function autoSort(id) {
 }
 
 bookmarks.onChanged.add(autoSort);
-conf.onChanged.add(autoSort);
+config.onChanged.add(autoSort);
 
 let menuContext;
 
 handle({
     async sort(options) {
         const {conf: c, node: {id} = {}} = options;
-        conf.set(c, {id, update: false});
+        config.set(c, {id, update: false});
         await startSort(id);
     },
 
@@ -147,7 +147,7 @@ handle({
         }
 
         lock.notify();
-        return {conf: conf.get(node), node};
+        return {conf: config.get(node), node};
     },
 });
 
@@ -164,5 +164,5 @@ util.createMenuItem({
 
 (async () => {
     await initCon();
-    await conf.load();
+    await config.load();
 })();
