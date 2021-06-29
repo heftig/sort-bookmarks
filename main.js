@@ -132,7 +132,7 @@ let menuContext = null;
 handle({
     async sort(node, conf) {
         const id = node ? node.id : null;
-        config.set(conf, {id, update: false});
+        config.set(id, conf, {update: false});
         await startSort(id);
     },
 

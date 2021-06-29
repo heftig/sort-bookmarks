@@ -45,9 +45,9 @@ export function getfunc(id, fallback = null) {
     return getmap(funcs, id, fallback);
 }
 
-export function remove(options = {}) {
+export function remove(node, options = {}) {
     const {toStorage = true, update = true} = options;
-    const id = nodeId(options.id);
+    const id = nodeId(node);
     const oldConf = confs.get(id);
     if (!oldConf) return false;
 
@@ -65,10 +65,11 @@ export function remove(options = {}) {
     return true;
 }
 
-export function set(conf, options = {}) {
-    if (!conf) return remove(options);
+export function set(node, conf, options = {}) {
+    if (!conf) return remove(node, options);
+
     const {toStorage = true, update = true} = options;
-    const id = nodeId(options.id);
+    const id = nodeId(node);
     const oldConf = confs.get(id) || {};
     if (objectsEqual(oldConf, conf)) return false;
 
@@ -88,7 +89,7 @@ export function set(conf, options = {}) {
 storage.onChanged.addListener((changes, area) => {
     if (area !== "sync") return;
     for (const [key, {newValue}] of Object.entries(changes)) {
-        if (key.startsWith(PREFIX)) set(newValue, {id: key.slice(PREFIX.length), toStorage: false});
+        if (key.startsWith(PREFIX)) set(key.slice(PREFIX.length), newValue, {toStorage: false});
         else con.warn("Unknown storage key:", key);
     }
 });
@@ -104,7 +105,7 @@ export async function load() {
 
         const id = key.slice(PREFIX.length);
         if (await exists(id)) {
-            set(value, {id, toStorage: false, update: false});
+            set(id, value, {toStorage: false, update: false});
         } else {
             con.log("Nonexistent ID '%s'", id);
             await storage.sync.remove(key);
@@ -112,12 +113,12 @@ export async function load() {
     }));
 
     if (conf) {
-        set(conf);
+        set(null, conf);
     } else {
         // Migrate 0.2 settings
         const keys = ["by", "folders", "reversed"];
         const storKey = k => `popupForm-${k}`;
-        set(Object.fromEntries(keys.map(k => [k, rest[storKey(k)]])));
+        set(null, Object.fromEntries(keys.map(k => [k, rest[storKey(k)]])));
         await storage.sync.remove(keys.map(storKey));
     }
 }
