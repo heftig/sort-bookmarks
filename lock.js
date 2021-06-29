@@ -1,13 +1,15 @@
 import con from "/console.js";
 import {send} from "/message.js";
 
+const LIMIT = 10000;
+
 const sorts = new Map();
 
 export async function notify() {
     try {
         await send("sortInProgress", sorts.size > 0);
     } catch (_e) {
-        // FIXME: Ignore; popup frame might not exist
+        // Ignore; popup frame might not exist
     }
 }
 
@@ -21,14 +23,14 @@ export async function wait(id) {
         promise = sorts.get(id);
     }
 
-    return !!promise;
+    return Boolean(promise);
 }
 
 export async function run(id, asyncFunc) {
     if (sorts.has(id)) throw new Error(`Already sorting ${id}`);
 
-    // XXX: Safety valve
-    if (sorts.size >= 10000) throw new Error("Too many concurrent sorts");
+    // Safety valve
+    if (sorts.size >= LIMIT) throw new Error("Too many concurrent sorts");
 
     const promise = asyncFunc();
     sorts.set(id, promise);

@@ -34,12 +34,14 @@ export function isSortable(node) {
     return true;
 }
 
+const MSEC_PER_SEC = 1000;
+
 export async function timedRun(func) {
     if (!debugMode) return func();
     let t = performance.now();
     const res = await func();
     t = performance.now() - t;
-    con.log("Completed in %.3fs", t / 1000);
+    con.log("Completed in %.3fs", t / MSEC_PER_SEC);
     return res;
 }
 
@@ -50,7 +52,7 @@ export function objectsEqual(obj1, obj2) {
     const names2 = Object.getOwnPropertyNames(obj2);
 
     if (names1.length !== names2.length) return false;
-    for (const name of names1) if (obj1[name] !== obj2[name]) return false;
+    for (const n of names1) if (obj1[n] !== obj2[n]) return false;
 
     return true;
 }

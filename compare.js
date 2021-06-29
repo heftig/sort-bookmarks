@@ -8,8 +8,8 @@ const compose = (func, fallback) => (a, b) => func(a, b) || fallback(a, b);
 // Node comparison functions
 const byIndex = (a, b) => a.index - b.index;
 const byTitle = (a, b) => stringCompare(a.title, b.title);
-const byURL = (a, b) => a.url && b.url ? stringCompare(a.url, b.url) : 0;
-const byDateAdded = (a, b) => a.dateAdded && b.dateAdded ? a.dateAdded - b.dateAdded : 0;
+const byURL = (a, b) => (a.url && b.url ? stringCompare(a.url, b.url) : 0);
+const byDateAdded = (a, b) => (a.dateAdded && b.dateAdded ? a.dateAdded - b.dateAdded : 0);
 
 const foldersFirst = (a, b) => isFolder(b) - isFolder(a);
 const foldersLast = reverse(foldersFirst);

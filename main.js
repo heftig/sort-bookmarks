@@ -71,7 +71,11 @@ async function sortNodeInternal(node) {
         if (moved || errors) {
             con.log(
                 "Sorted \"%s\", slice %d..%d, %d items moved, %d items failed",
-                title || id, start, start + items.length, moved, errors,
+                title || id,
+                start,
+                start + items.length,
+                moved,
+                errors,
             );
         }
     }
@@ -122,23 +126,25 @@ async function autoSort(id) {
 bookmarks.onChanged.add(autoSort);
 config.onChanged.add(autoSort);
 
-let menuContext;
+const CONTEXT_TIMEOUT = 5000;
+let menuContext = null;
 
 handle({
     async sort(options) {
-        const {conf: c, node: {id} = {}} = options;
-        config.set(c, {id, update: false});
+        const {conf, node} = options;
+        const id = node ? node.id : null;
+        config.set(conf, {id, update: false});
         await startSort(id);
     },
 
     async popupOpened() {
-        let node;
+        let node = null;
 
         if (menuContext) {
             const {info, stamp} = menuContext;
-            menuContext = undefined;
+            menuContext = null;
 
-            if (!stamp || Date.now() - stamp < 5000) {
+            if (!stamp || Date.now() - stamp < CONTEXT_TIMEOUT) {
                 const {bookmarkId} = info;
                 node = await bookmarks.findAncestor(bookmarkId, util.isSortable);
             } else {

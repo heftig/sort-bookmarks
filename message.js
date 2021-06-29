@@ -7,10 +7,10 @@ export function send(type, value = undefined) {
 }
 
 export function handle(handler) {
-    runtime.onMessage.addListener(async ({type, value}, {url}) => {
+    runtime.onMessage.addListener(({type, value}, {url}) => {
         con.log("Received message %s(%o) from %s", type, value, url);
 
         const {[type]: func} = handler;
-        return func ? func(value) : undefined;
+        return Promise.resolve(func ? func(value) : undefined);
     });
 }

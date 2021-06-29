@@ -2,9 +2,9 @@ import con, {init as initCon} from "/console.js";
 import {handle, send} from "/message.js";
 
 const submitButtons = document.querySelectorAll("button");
-let savedNode;
+let savedNode = null;
 
-document.getElementById("sort-form").addEventListener("submit", e => {
+document.getElementById("sort-form").addEventListener("submit", (e) => {
     e.preventDefault();
 
     const data = new FormData(e.target);
@@ -15,7 +15,7 @@ document.getElementById("sort-form").addEventListener("submit", e => {
     send("sort", {node: savedNode, conf});
 });
 
-document.getElementById("reset-form").addEventListener("submit", e => {
+document.getElementById("reset-form").addEventListener("submit", (e) => {
     e.preventDefault();
     send("sort", {node: savedNode});
 });
@@ -36,9 +36,8 @@ handle({
         const context = document.getElementById("context");
         context.textContent = `Sorting "${node.title || node.id}"`;
 
-        for (const elem of document.getElementsByClassName("node-specific")) {
-            elem.style.display = "block";
-        }
+        const elems = document.getElementsByClassName("node-specific");
+        for (const elem of elems) elem.style.display = "block";
 
         savedNode = node;
     }

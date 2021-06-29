@@ -14,12 +14,13 @@ export async function getNode(id) {
 }
 
 export async function findAncestor(id, predicate) {
-    while (id) {
-        const [node] = await bookmarks.get(id);
+    let curId = id;
+    while (curId) {
+        const [node] = await bookmarks.get(curId);
         if (predicate(node)) return node;
-        ({parentId: id} = node);
+        ({parentId: curId} = node);
     }
-    return undefined;
+    return null;
 }
 
 export async function exists(id) {
@@ -85,13 +86,12 @@ const bookmarksListeners = new Map([
 
 let tracking = false;
 
-export async function setTracking(value) {
-    if (tracking === value) return;
-    value = !!value;
+export function setTracking(enabled) {
+    if (tracking === enabled) return;
 
-    if (value) for (const [ev, l] of bookmarksListeners.entries()) ev.addListener(l);
+    if (enabled) for (const [ev, l] of bookmarksListeners.entries()) ev.addListener(l);
     else for (const [ev, l] of bookmarksListeners.entries()) ev.removeListener(l);
 
-    con.log("Bookmarks tracking %s", value ? "enabled" : "disabled");
-    tracking = value;
+    con.log("Bookmarks tracking %s", enabled ? "enabled" : "disabled");
+    tracking = enabled;
 }

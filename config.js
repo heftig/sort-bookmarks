@@ -11,21 +11,23 @@ function emitChanged(id) {
     for (const func of onChanged) func(id);
 }
 
-function nodeId(id) {
-    switch (typeof id) {
+function nodeId(nodeOrId) {
+    switch (typeof nodeOrId) {
         case "undefined":
             return "";
         case "string":
-            return id;
+            return nodeOrId;
         case "object":
-            return nodeId(id.id);
+            return nodeOrId === null ? "" : nodeOrId.id;
         default:
             break;
     }
 
-    con.error("Invalid ID:", id);
-    throw new Error("Invalid ID");
+    con.error("Invalid node or ID:", nodeOrId);
+    throw new Error("Invalid node or ID");
 }
+
+const PREFIX = "sortConf";
 
 const confs = new Map();
 const funcs = new Map();
@@ -35,11 +37,11 @@ function getmap(map, id, fallback) {
     return map.get(nodeId(id)) || map.get(nodeId(fallback));
 }
 
-export function get(id, fallback = undefined) {
+export function get(id, fallback = null) {
     return getmap(confs, id, fallback);
 }
 
-export function getfunc(id, fallback = undefined) {
+export function getfunc(id, fallback = null) {
     return getmap(funcs, id, fallback);
 }
 
@@ -56,7 +58,7 @@ export function remove(options = {}) {
     funcs.delete(id);
     autos.delete(id);
 
-    if (toStorage) storage.sync.remove([`sortConf${id}`]);
+    if (toStorage) storage.sync.remove([PREFIX + id]);
     if (update) emitChanged(id);
     setTracking(autos.size > 0);
 
@@ -76,7 +78,7 @@ export function set(conf, options = {}) {
     if (conf.autosort) autos.add(id);
     else autos.delete(id);
 
-    if (toStorage) storage.sync.set({[`sortConf${id}`]: conf});
+    if (toStorage) storage.sync.set({[PREFIX + id]: conf});
     if (update) emitChanged(id);
     setTracking(autos.size > 0);
 
@@ -86,21 +88,21 @@ export function set(conf, options = {}) {
 storage.onChanged.addListener((changes, area) => {
     if (area !== "sync") return;
     for (const [key, {newValue}] of Object.entries(changes)) {
-        if (key.startsWith("sortConf")) set(newValue, {id: key.slice(8), toStorage: false});
+        if (key.startsWith(PREFIX)) set(newValue, {id: key.slice(PREFIX.length), toStorage: false});
         else con.warn("Unknown storage key:", key);
     }
 });
 
 export async function load() {
-    const {sortConf: conf, ...rest} = await storage.sync.get();
+    const {[PREFIX]: conf, ...rest} = await storage.sync.get();
 
     await Promise.all(Object.entries(rest).map(async ([key, value]) => {
-        if (!key.startsWith("sortConf")) {
+        if (!key.startsWith(PREFIX)) {
             con.warn("Unknown storage key:", key);
             return;
         }
 
-        const id = key.slice(8);
+        const id = key.slice(PREFIX.length);
         if (await exists(id)) {
             set(value, {id, toStorage: false, update: false});
         } else {
