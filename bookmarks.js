@@ -27,7 +27,6 @@ export async function exists(id) {
         const [_node] = await bookmarks.get(id);
         return true;
     } catch (_e) {
-        con.log("Nonexistent ID '%s'", id);
         return false;
     }
 }
