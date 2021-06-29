@@ -69,6 +69,8 @@ export function set(id, conf, options = {}) {
 storage.onChanged.addListener((changes, area) => {
     if (area !== "sync") return;
 
+    con.log("Storage changed:", changes);
+
     const {[PREFIX]: {newValue: conf} = {}, ...rest} = changes;
 
     for (const [key, {newValue}] of Object.entries(rest)) {
