@@ -88,10 +88,20 @@ export function set(node, conf, options = {}) {
 
 storage.onChanged.addListener((changes, area) => {
     if (area !== "sync") return;
-    for (const [key, {newValue}] of Object.entries(changes)) {
-        if (key.startsWith(PREFIX)) set(key.slice(PREFIX.length), newValue, {toStorage: false});
-        else con.warn("Unknown storage key:", key);
+
+    const {[PREFIX]: {newValue: conf} = {}, ...rest} = changes;
+
+    for (const [key, {newValue}] of Object.entries(rest)) {
+        if (!key.startsWith(PREFIX)) {
+            con.warn("Unknown storage key:", key);
+            continue;
+        }
+
+        const id = key.slice(PREFIX.length);
+        set(id, newValue, {toStorage: false});
     }
+
+    if (conf) set(null, conf, {toStorage: false});
 });
 
 export async function load() {
