@@ -30,8 +30,7 @@ export function remove(id, options = {}) {
 
     const {toStorage = true, update = true} = options;
 
-    const oldConf = confs.get(id);
-    if (!oldConf) return false;
+    if (!confs.has(id)) return false;
 
     con.log("Removing conf:", id);
     confs.delete(id);
@@ -50,8 +49,8 @@ export function set(id, conf, options = {}) {
 
     const {toStorage = true, update = true} = options;
 
-    const oldConf = confs.get(id) || {};
-    if (objectsEqual(oldConf, conf)) return false;
+    const oldConf = confs.get(id);
+    if (oldConf && objectsEqual(oldConf, conf)) return false;
 
     con.log("Setting conf:", id, conf);
     confs.set(id, conf);
@@ -104,13 +103,21 @@ export async function load() {
         }
     }));
 
-    if (conf) {
+    if (conf !== undefined) {
         set(null, conf);
-    } else {
-        // Migrate 0.2 settings
-        const keys = ["by", "folders", "reversed"];
-        const storKey = k => `popupForm-${k}`;
-        set(null, Object.fromEntries(keys.map(k => [k, rest[storKey(k)]])));
-        await storage.sync.remove(keys.map(storKey));
+        return;
     }
+
+    // Migrate 0.2 settings
+    const storKey = k => `popupForm-${k}`;
+    const oldKeys = ["by", "folders", "reversed"].filter(k => storKey(k) in rest);
+    if (oldKeys.length > 0) {
+        con.log("Migrating old conf");
+        set(null, Object.fromEntries(oldKeys.map(k => [k, rest[storKey(k)]])));
+        await storage.sync.remove(oldKeys.map(storKey));
+        return;
+    }
+
+    con.log("Initializing new conf");
+    set(null, {});
 }
